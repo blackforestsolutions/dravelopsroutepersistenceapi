@@ -19,6 +19,7 @@
         <apache.lang-version>2.6</apache.lang-version>
         <lombok.version>1.18.8</lombok.version>
         <jaxws.version>2.3.2</jaxws.version>
+        <hazelcast.version>4.1.1</hazelcast.version>
         <blackforestsolutions.dravelopsdatamodel.version>4.0.0</blackforestsolutions.dravelopsdatamodel.version>
         <blackforestsolutions.dravelopsgeneratedcontent.version>0.1.0</blackforestsolutions.dravelopsgeneratedcontent.version>
         <!-- Maven test Dependencies -->
@@ -77,6 +78,11 @@
             <artifactId>jaxws-ri</artifactId>
             <version>${jaxws.version}</version>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-all</artifactId>
+            <version>${hazelcast.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.blackforestsolutions</groupId>
