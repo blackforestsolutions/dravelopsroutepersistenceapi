@@ -14,11 +14,6 @@ import java.util.Optional;
 public class ExceptionHandlerServiceImpl implements ExceptionHandlerService {
 
     @Override
-    public void handleExceptions(Exception e) {
-        logError(e);
-    }
-
-    @Override
     public <T> Flux<T> handleExceptions(Throwable exception) {
         logError(exception);
         return Flux.empty();

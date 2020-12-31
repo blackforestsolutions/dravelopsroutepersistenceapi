@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class DeparturePointPredicate implements Predicate<String, Journey> {
 
+    private static final long serialVersionUID = -1760994329544417605L;
     private final Point departurePointToCompare;
 
     public DeparturePointPredicate(Point departurePointToCompare) {

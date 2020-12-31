@@ -15,18 +15,20 @@
     </parent>
 
     <properties>
+        <springframework.version>2.2.1.RELEASE</springframework.version>
         <java.version>11</java.version>
         <apache.lang-version>2.6</apache.lang-version>
         <lombok.version>1.18.8</lombok.version>
         <jaxws.version>2.3.2</jaxws.version>
         <hazelcast.version>4.1.1</hazelcast.version>
-        <blackforestsolutions.dravelopsdatamodel.version>4.0.0</blackforestsolutions.dravelopsdatamodel.version>
+        <blackforestsolutions.dravelopsdatamodel.version>4.1.2-hazelcast-2</blackforestsolutions.dravelopsdatamodel.version>
         <blackforestsolutions.dravelopsgeneratedcontent.version>0.1.0</blackforestsolutions.dravelopsgeneratedcontent.version>
         <!-- Maven test Dependencies -->
         <assertj.version>3.9.0</assertj.version>
         <junit.version>5.0.0</junit.version>
         <mockito.version>3.2.0</mockito.version>
         <selenium.version>1.0.1</selenium.version>
+        <awaitility.version>4.0.2</awaitility.version>
         <!-- Maven build plugins -->
         <maven.dockerfile.plugin.version>1.3.7</maven.dockerfile.plugin.version>
         <maven.jacoco.plugin.version>0.8.4</maven.jacoco.plugin.version>
@@ -74,12 +76,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>jaxws-ri</artifactId>
-            <version>${jaxws.version}</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-all</artifactId>
             <version>${hazelcast.version}</version>
@@ -88,11 +84,6 @@
             <groupId>com.github.blackforestsolutions</groupId>
             <artifactId>dravelopsdatamodel</artifactId>
             <version>${blackforestsolutions.dravelopsdatamodel.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.blackforestsolutions</groupId>
-            <artifactId>dravelopsgeneratedcontent</artifactId>
-            <version>${blackforestsolutions.dravelopsgeneratedcontent.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -127,20 +118,29 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.seleniumhq.selenium.core</groupId>
-            <artifactId>selenium-core</artifactId>
-            <version>${selenium.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.htmlunit</groupId>
-            <artifactId>htmlunit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <scope>test</scope>
+            <version>${hazelcast.version}</version>
+            <classifier>tests</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.github.blackforestsolutions</groupId>
+            <artifactId>dravelopsdatamodel</artifactId>
+            <version>${blackforestsolutions.dravelopsdatamodel.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
         </dependency>
     </dependencies>
 

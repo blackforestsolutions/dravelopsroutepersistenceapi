@@ -3,30 +3,33 @@ package de.blackforestsolutions.dravelopsroutepersistenceapi.service.communicati
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.exceptionhandling.ExceptionHandlerService;
-import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyRepositoryService;
+import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyCreateRepositoryService;
+import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyReadRepositoryService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.RequestTokenHandlerService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.ShaIdService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Objects;
-
+@Slf4j
 @Service
-public class JourneyApiServiceImpl implements JourneyApiService {
+public class JourneyHandlerServiceImpl implements JourneyHandlerService {
 
     private final RequestTokenHandlerService requestTokenHandlerService;
-    private final JourneyRepositoryService journeyRepositoryService;
+    private final JourneyCreateRepositoryService journeyCreateRepositoryService;
+    private final JourneyReadRepositoryService journeyReadRepositoryService;
     private final BackendApiService backendApiService;
     private final ShaIdService shaIdService;
     private final ExceptionHandlerService exceptionHandlerService;
     private final ApiToken otpmapperApiToken;
 
     @Autowired
-    public JourneyApiServiceImpl(RequestTokenHandlerService requestTokenHandlerService, JourneyRepositoryService journeyRepositoryService, BackendApiService backendApiService, ShaIdService shaIdService, ExceptionHandlerService exceptionHandlerService, ApiToken otpmapperApiToken) {
+    public JourneyHandlerServiceImpl(RequestTokenHandlerService requestTokenHandlerService, JourneyCreateRepositoryService journeyCreateRepositoryService, JourneyReadRepositoryService journeyReadRepositoryService, BackendApiService backendApiService, ShaIdService shaIdService, ExceptionHandlerService exceptionHandlerService, ApiToken otpmapperApiToken) {
         this.requestTokenHandlerService = requestTokenHandlerService;
-        this.journeyRepositoryService = journeyRepositoryService;
+        this.journeyCreateRepositoryService = journeyCreateRepositoryService;
+        this.journeyReadRepositoryService = journeyReadRepositoryService;
         this.backendApiService = backendApiService;
         this.shaIdService = shaIdService;
         this.exceptionHandlerService = exceptionHandlerService;
@@ -36,9 +39,10 @@ public class JourneyApiServiceImpl implements JourneyApiService {
     @Override
     public Flux<Journey> retrieveJourneysFromApiOrRepositoryService(ApiToken userRequestToken) {
         return Flux.merge(
-                retrieveJourneysFromRepositoryServiceWith(userRequestToken),
-                retrieveJourneysFromApiServiceWith(userRequestToken)
-        ).distinct(this::distinctByShaIdWith);
+                    retrieveJourneysFromRepositoryServiceWith(userRequestToken),
+                    retrieveJourneysFromApiServiceWith(userRequestToken)
+                )
+                .distinct(this::distinctByShaIdWith);
     }
 
     private Flux<Journey> retrieveJourneysFromApiServiceWith(ApiToken userRequestToken) {
@@ -46,7 +50,8 @@ public class JourneyApiServiceImpl implements JourneyApiService {
                 .flatMapMany(userToken -> backendApiService.getManyBy(userToken, otpmapperApiToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class))
                 .doOnNext(journey -> {
                     try {
-                        journeyRepositoryService.writeJourneyToMapWith(userRequestToken, journey);
+                        journeyCreateRepositoryService.writeJourneyToMapWith(journey);
+                        log.info("Writing Journey to Map was successfull");
                     } catch (Exception e) {
                         exceptionHandlerService.handleExceptions(e);
                     }
@@ -55,7 +60,6 @@ public class JourneyApiServiceImpl implements JourneyApiService {
     }
 
     private Flux<Journey> retrieveJourneysFromRepositoryServiceWith(ApiToken userRequestToken) {
-        Objects.requireNonNull(userRequestToken.getIsArrivalDateTime(), "isArrivalDateTime is not allowed to be null");
         try {
             return executeJourneyRepositoryServiceWith(userRequestToken)
                     .onErrorResume(exceptionHandlerService::handleExceptions);
@@ -67,10 +71,10 @@ public class JourneyApiServiceImpl implements JourneyApiService {
     private Flux<Journey> executeJourneyRepositoryServiceWith(ApiToken userRequestToken) {
         if (userRequestToken.getIsArrivalDateTime()) {
             return Mono.just(userRequestToken)
-                    .flatMapMany(userToken -> Flux.fromStream(journeyRepositoryService.getJourneysSortedByArrivalDateWith(userToken)));
+                    .flatMapMany(userToken -> Flux.fromStream(journeyReadRepositoryService.getJourneysSortedByArrivalDateWith(userToken)));
         }
         return Mono.just(userRequestToken)
-                .flatMapMany(userToken -> Flux.fromStream(journeyRepositoryService.getJourneysSortedByDepartureDateWith(userToken)));
+                .flatMapMany(userToken -> Flux.fromStream(journeyReadRepositoryService.getJourneysSortedByDepartureDateWith(userToken)));
     }
 
     private String distinctByShaIdWith(Journey journey) {
@@ -78,7 +82,7 @@ public class JourneyApiServiceImpl implements JourneyApiService {
             return shaIdService.generateShaIdWith(journey);
         } catch (Exception e) {
             exceptionHandlerService.handleExceptions(e);
-            return journey.toString();
+            return "";
         }
     }
 

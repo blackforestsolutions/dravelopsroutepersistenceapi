@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class ArrivalTimePredicate implements Predicate<String, Journey> {
 
+    private static final long serialVersionUID = -4729480972321148445L;
     private final ZonedDateTime maxArrivalTimeToCompare;
     private final ZonedDateTime minArrivalTimeToCompare;
 
@@ -20,6 +21,9 @@ public class ArrivalTimePredicate implements Predicate<String, Journey> {
     public boolean apply(Map.Entry<String, Journey> entry) {
         ZonedDateTime arrivalTime = entry.getValue().getLegs().getLast().getArrival().getArrivalTime();
 
+        if (arrivalTime.equals(maxArrivalTimeToCompare) || arrivalTime.equals(minArrivalTimeToCompare)) {
+            return true;
+        }
         return arrivalTime.isBefore(maxArrivalTimeToCompare) && arrivalTime.isAfter(minArrivalTimeToCompare);
     }
 }
