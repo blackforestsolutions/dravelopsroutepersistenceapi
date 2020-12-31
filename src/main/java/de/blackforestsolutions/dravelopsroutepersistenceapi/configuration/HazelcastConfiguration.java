@@ -3,8 +3,6 @@ package de.blackforestsolutions.dravelopsroutepersistenceapi.configuration;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
-import com.hazelcast.config.EvictionConfig;
-import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.core.HazelcastInstance;
 import de.blackforestsolutions.dravelopsdatamodel.*;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.predicates.*;
@@ -40,54 +38,40 @@ public class HazelcastConfiguration {
     @Bean
     public ClientConfig clientConfig() {
         ClientConfig clientConfig = new ClientConfig();
-        clientConfig.setClassLoader(Thread.currentThread().getContextClassLoader());
         clientConfig.setUserCodeDeploymentConfig(userCodeDeploymentConfig());
         return clientConfig;
     }
 
     @Bean
     public HazelcastInstance hazelcastInstance(ClientConfig clientConfig) {
-        HazelcastInstance hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
-//        hazelcastInstance.getConfig().addMapConfig(mapConfig());
-        return hazelcastInstance;
+        return HazelcastClient.newHazelcastClient(clientConfig);
     }
 
     private ClientUserCodeDeploymentConfig userCodeDeploymentConfig() {
         ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
-
+        // predicates
         clientUserCodeDeploymentConfig.addClass(DeparturePointPredicate.class);
-        clientUserCodeDeploymentConfig.addClass(Point.class);
-        clientUserCodeDeploymentConfig.addClass(Distance.class);
         clientUserCodeDeploymentConfig.addClass(ArrivalPointPredicate.class);
         clientUserCodeDeploymentConfig.addClass(LanguagePredicate.class);
         clientUserCodeDeploymentConfig.addClass(DepartureTimePredicate.class);
         clientUserCodeDeploymentConfig.addClass(ArrivalTimePredicate.class);
+        // spring geo
+        clientUserCodeDeploymentConfig.addClass(Point.class);
+        clientUserCodeDeploymentConfig.addClass(Distance.class);
+        clientUserCodeDeploymentConfig.addClass(Metric.class);
+        clientUserCodeDeploymentConfig.addClass(Range.class);
+        clientUserCodeDeploymentConfig.addClass(Metrics.class);
+        // datamodel
         clientUserCodeDeploymentConfig.addClass(Journey.class);
         clientUserCodeDeploymentConfig.addClass(Leg.class);
         clientUserCodeDeploymentConfig.addClass(TravelPoint.class);
         clientUserCodeDeploymentConfig.addClass(VehicleType.class);
         clientUserCodeDeploymentConfig.addClass(TravelProvider.class);
-        clientUserCodeDeploymentConfig.addClass(Metric.class);
-        clientUserCodeDeploymentConfig.addClass(Range.class);
-        clientUserCodeDeploymentConfig.addClass(Metrics.class);
         clientUserCodeDeploymentConfig.addClass(Price.class);
         clientUserCodeDeploymentConfig.addClass(PriceType.class);
 
         clientUserCodeDeploymentConfig.setEnabled(true);
-
         return clientUserCodeDeploymentConfig;
-    }
-
-//    private MapConfig mapConfig() {
-//        return new MapConfig(JOURNEY_MAP)
-//                .setName(JOURNEY_MAP)
-////                .setEvictionConfig(evictionConfig())
-//                .setTimeToLiveSeconds(JOURNEY_MAP_TTL_STANDARD);
-//    }
-
-    private EvictionConfig evictionConfig() {
-        return new EvictionConfig()
-                .setEvictionPolicy(EvictionPolicy.LFU);
     }
 
 }
