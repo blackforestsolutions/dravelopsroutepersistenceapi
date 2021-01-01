@@ -19,6 +19,6 @@ public class ArrivalPointPredicate implements Predicate<String, Journey> {
     public boolean apply(Map.Entry<String, Journey> entry) {
         Point arrivalPoint = entry.getValue().getLegs().getLast().getArrival().getPoint();
 
-        return arrivalPoint.getX() == arrivalPointToCompare.getX() && arrivalPoint.getY() == arrivalPointToCompare.getX();
+        return arrivalPoint.getX() == arrivalPointToCompare.getX() && arrivalPoint.getY() == arrivalPointToCompare.getY();
     }
 }
