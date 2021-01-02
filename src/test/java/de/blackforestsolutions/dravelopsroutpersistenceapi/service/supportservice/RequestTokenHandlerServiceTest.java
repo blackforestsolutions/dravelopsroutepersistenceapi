@@ -20,7 +20,7 @@ class RequestTokenHandlerServiceTest {
 
         ApiToken result = classUnderTest.mergeJourneyApiTokensWith(requestTestData, configuredOtpMapperTestData);
 
-        assertThat(result).isEqualToComparingFieldByField(getOtpMapperApiToken());
+        assertThat(result).isEqualToComparingFieldByFieldRecursively(getOtpMapperApiToken());
     }
 
     @Test

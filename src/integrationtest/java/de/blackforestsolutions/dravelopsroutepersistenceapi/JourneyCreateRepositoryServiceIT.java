@@ -3,7 +3,6 @@ package de.blackforestsolutions.dravelopsroutepersistenceapi;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
-import de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyCreateRepositoryService;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
@@ -16,9 +15,9 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsByArrivalTime;
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.HAZELCAST_INSTANCE;
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.JOURNEY_MAP;
-import static de.blackforestsolutions.dravelopsroutpersistenceapi.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsByArrivalTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

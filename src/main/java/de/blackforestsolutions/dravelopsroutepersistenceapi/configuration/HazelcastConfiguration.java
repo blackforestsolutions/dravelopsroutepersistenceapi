@@ -13,7 +13,6 @@ import org.springframework.data.domain.Range;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metric;
 import org.springframework.data.geo.Metrics;
-import org.springframework.data.geo.Point;
 
 @SpringBootConfiguration
 public class HazelcastConfiguration {
@@ -56,7 +55,6 @@ public class HazelcastConfiguration {
         clientUserCodeDeploymentConfig.addClass(DepartureTimePredicate.class);
         clientUserCodeDeploymentConfig.addClass(ArrivalTimePredicate.class);
         // spring geo
-        clientUserCodeDeploymentConfig.addClass(Point.class);
         clientUserCodeDeploymentConfig.addClass(Distance.class);
         clientUserCodeDeploymentConfig.addClass(Metric.class);
         clientUserCodeDeploymentConfig.addClass(Range.class);
@@ -69,6 +67,7 @@ public class HazelcastConfiguration {
         clientUserCodeDeploymentConfig.addClass(TravelProvider.class);
         clientUserCodeDeploymentConfig.addClass(Price.class);
         clientUserCodeDeploymentConfig.addClass(PriceType.class);
+        clientUserCodeDeploymentConfig.addClass(Point.class);
 
         clientUserCodeDeploymentConfig.setEnabled(true);
         return clientUserCodeDeploymentConfig;

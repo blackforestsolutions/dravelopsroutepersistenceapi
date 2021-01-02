@@ -20,7 +20,6 @@ import reactor.test.StepVerifier;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getConfiguredOtpMapperApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getRoutePersistenceApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getFurtwangenToWaldkirchJourney;
-import static de.blackforestsolutions.dravelopsdatamodel.testutil.TestUtils.toJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -47,7 +46,7 @@ class BackendApiServiceTest {
         Flux<Journey> result = classUnderTest.getManyBy(routePersistenceToken, configuredTestToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class);
 
         StepVerifier.create(result)
-                .assertNext(journey -> assertThat(toJson(journey)).isEqualTo(toJson(getFurtwangenToWaldkirchJourney())))
+                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
                 .verifyComplete();
     }
 
@@ -79,7 +78,7 @@ class BackendApiServiceTest {
 
         verify(callService, times(1)).postMany(urlArg.capture(), bodyArg.capture(), httpHeadersArg.capture(), eq(Journey.class));
         assertThat(urlArg.getValue()).isEqualTo("http://localhost:8084/otp/journeys/get");
-        assertThat(bodyArg.getValue()).isEqualToComparingFieldByField(getRoutePersistenceApiToken());
+        assertThat(bodyArg.getValue()).isEqualToComparingFieldByFieldRecursively(getRoutePersistenceApiToken());
         assertThat(httpHeadersArg.getValue()).isEqualTo(HttpHeaders.EMPTY);
     }
 

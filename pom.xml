@@ -20,7 +20,7 @@
         <apache.lang-version>2.6</apache.lang-version>
         <lombok.version>1.18.8</lombok.version>
         <hazelcast.version>4.1.1</hazelcast.version>
-        <blackforestsolutions.dravelopsdatamodel.version>4.1.2-hazelcast-2</blackforestsolutions.dravelopsdatamodel.version>
+        <blackforestsolutions.dravelopsdatamodel.version>5.0.0-hazelcast</blackforestsolutions.dravelopsdatamodel.version>
         <blackforestsolutions.dravelopsgeneratedcontent.version>0.1.0</blackforestsolutions.dravelopsgeneratedcontent.version>
         <!-- Maven test Dependencies -->
         <assertj.version>3.9.0</assertj.version>
@@ -53,18 +53,12 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-geode</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>${apache.lang-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
             <version>${apache.lang-version}</version>
         </dependency>
         <dependency>

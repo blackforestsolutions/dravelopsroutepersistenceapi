@@ -12,8 +12,6 @@ import reactor.test.StepVerifier;
 
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getRoutePersistenceApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithEmptyFields;
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.TEST_UUID_1;
-import static de.blackforestsolutions.dravelopsdatamodel.testutil.TestUtils.toJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -28,14 +26,14 @@ class JourneyControllerTest {
         ApiToken testData = getRoutePersistenceApiToken();
         ArgumentCaptor<ApiToken> requestArg = ArgumentCaptor.forClass(ApiToken.class);
         when(journeyHandlerService.retrieveJourneysFromApiOrRepositoryService(any(ApiToken.class)))
-                .thenReturn(Flux.just(getJourneyWithEmptyFields(TEST_UUID_1)));
+                .thenReturn(Flux.just(getJourneyWithEmptyFields()));
 
         Flux<Journey> result = classUnderTest.retrieveOpenTripPlannerJourneys(testData);
 
         verify(journeyHandlerService, times(1)).retrieveJourneysFromApiOrRepositoryService(requestArg.capture());
-        assertThat(requestArg.getValue()).isEqualToComparingFieldByField(getRoutePersistenceApiToken());
+        assertThat(requestArg.getValue()).isEqualToComparingFieldByFieldRecursively(getRoutePersistenceApiToken());
         StepVerifier.create(result)
-                .assertNext(journey -> assertThat(toJson(journey)).isEqualTo(toJson(getJourneyWithEmptyFields(TEST_UUID_1))))
+                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getJourneyWithEmptyFields()))
                 .verifyComplete();
     }
 

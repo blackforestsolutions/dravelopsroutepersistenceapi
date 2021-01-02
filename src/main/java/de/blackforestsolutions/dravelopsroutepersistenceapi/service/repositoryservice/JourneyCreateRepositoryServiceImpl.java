@@ -4,12 +4,10 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
-import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.ShaIdService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
@@ -23,25 +21,18 @@ public class JourneyCreateRepositoryServiceImpl implements JourneyCreateReposito
 
     private final HazelcastInstance hazelcastInstance;
     private final ApiToken hazelcastApiToken;
-    private final ShaIdService shaIdService;
 
     @Autowired
-    public JourneyCreateRepositoryServiceImpl(@Qualifier(HAZELCAST_INSTANCE) HazelcastInstance hazelcastInstance, ShaIdService shaIdService, ApiToken hazelcastApiToken) {
+    public JourneyCreateRepositoryServiceImpl(@Qualifier(HAZELCAST_INSTANCE) HazelcastInstance hazelcastInstance, ApiToken hazelcastApiToken) {
         this.hazelcastInstance = hazelcastInstance;
-        this.shaIdService = shaIdService;
         this.hazelcastApiToken = hazelcastApiToken;
     }
 
     @Override
-    public Journey writeJourneyToMapWith(Journey journey) throws IOException {
-        String key = shaIdService.generateShaIdWith(journey);
+    public Journey writeJourneyToMapWith(Journey journey) {
         IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
-        return hazelcastJourneys.putIfAbsent(
-                key,
-                journey,
-                calculateTimeToLiveInSecondsWith(journey),
-                TimeUnit.SECONDS
-        );
+        long ttl = calculateTimeToLiveInSecondsWith(journey);
+        return hazelcastJourneys.putIfAbsent(journey.getId(), journey, ttl, TimeUnit.SECONDS);
     }
 
     private long calculateTimeToLiveInSecondsWith(Journey journey) {

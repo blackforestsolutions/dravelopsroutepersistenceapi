@@ -2,13 +2,15 @@ package de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositorys
 
 import com.hazelcast.query.Predicate;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
-import org.springframework.data.geo.Point;
+import de.blackforestsolutions.dravelopsdatamodel.Point;
 
 import java.util.Map;
 
 public class ArrivalPointPredicate implements Predicate<String, Journey> {
 
     private static final long serialVersionUID = -1434743634655172925L;
+    private static final double MAX_EPSILON = 0.00001d;
+
     private final Point arrivalPointToCompare;
 
     public ArrivalPointPredicate(Point arrivalPointToCompare) {
@@ -19,6 +21,9 @@ public class ArrivalPointPredicate implements Predicate<String, Journey> {
     public boolean apply(Map.Entry<String, Journey> entry) {
         Point arrivalPoint = entry.getValue().getLegs().getLast().getArrival().getPoint();
 
-        return arrivalPoint.getX() == arrivalPointToCompare.getX() && arrivalPoint.getY() == arrivalPointToCompare.getY();
+        // save way for arrivalPoint.getX() == arrivalPointToCompare.getX() && arrivalPoint.getY() == arrivalPointToCompare.getY();
+        return Math.abs(arrivalPoint.getX() - arrivalPointToCompare.getX()) < MAX_EPSILON
+                &&
+                Math.abs(arrivalPoint.getY() - arrivalPointToCompare.getY()) < MAX_EPSILON;
     }
 }

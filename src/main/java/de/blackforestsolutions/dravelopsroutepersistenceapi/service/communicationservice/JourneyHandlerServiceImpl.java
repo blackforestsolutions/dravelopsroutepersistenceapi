@@ -6,7 +6,6 @@ import de.blackforestsolutions.dravelopsroutepersistenceapi.exceptionhandling.Ex
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyCreateRepositoryService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyReadRepositoryService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.RequestTokenHandlerService;
-import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.ShaIdService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,17 +20,15 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
     private final JourneyCreateRepositoryService journeyCreateRepositoryService;
     private final JourneyReadRepositoryService journeyReadRepositoryService;
     private final BackendApiService backendApiService;
-    private final ShaIdService shaIdService;
     private final ExceptionHandlerService exceptionHandlerService;
     private final ApiToken otpmapperApiToken;
 
     @Autowired
-    public JourneyHandlerServiceImpl(RequestTokenHandlerService requestTokenHandlerService, JourneyCreateRepositoryService journeyCreateRepositoryService, JourneyReadRepositoryService journeyReadRepositoryService, BackendApiService backendApiService, ShaIdService shaIdService, ExceptionHandlerService exceptionHandlerService, ApiToken otpmapperApiToken) {
+    public JourneyHandlerServiceImpl(RequestTokenHandlerService requestTokenHandlerService, JourneyCreateRepositoryService journeyCreateRepositoryService, JourneyReadRepositoryService journeyReadRepositoryService, BackendApiService backendApiService, ExceptionHandlerService exceptionHandlerService, ApiToken otpmapperApiToken) {
         this.requestTokenHandlerService = requestTokenHandlerService;
         this.journeyCreateRepositoryService = journeyCreateRepositoryService;
         this.journeyReadRepositoryService = journeyReadRepositoryService;
         this.backendApiService = backendApiService;
-        this.shaIdService = shaIdService;
         this.exceptionHandlerService = exceptionHandlerService;
         this.otpmapperApiToken = otpmapperApiToken;
     }
@@ -39,10 +36,10 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
     @Override
     public Flux<Journey> retrieveJourneysFromApiOrRepositoryService(ApiToken userRequestToken) {
         return Flux.merge(
-                    retrieveJourneysFromRepositoryServiceWith(userRequestToken),
-                    retrieveJourneysFromApiServiceWith(userRequestToken)
-                )
-                .distinct(this::distinctByShaIdWith);
+                retrieveJourneysFromRepositoryServiceWith(userRequestToken),
+                retrieveJourneysFromApiServiceWith(userRequestToken)
+        )
+                .distinct(Journey::getId);
     }
 
     private Flux<Journey> retrieveJourneysFromApiServiceWith(ApiToken userRequestToken) {
@@ -75,15 +72,6 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
         }
         return Mono.just(userRequestToken)
                 .flatMapMany(userToken -> Flux.fromStream(journeyReadRepositoryService.getJourneysSortedByDepartureDateWith(userToken)));
-    }
-
-    private String distinctByShaIdWith(Journey journey) {
-        try {
-            return shaIdService.generateShaIdWith(journey);
-        } catch (Exception e) {
-            exceptionHandlerService.handleExceptions(e);
-            return "";
-        }
     }
 
 }

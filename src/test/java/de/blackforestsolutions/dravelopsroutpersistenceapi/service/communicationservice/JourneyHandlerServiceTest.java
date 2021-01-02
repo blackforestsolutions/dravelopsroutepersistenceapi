@@ -12,8 +12,6 @@ import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryse
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyReadRepositoryServiceImpl;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.RequestTokenHandlerService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.RequestTokenHandlerServiceImpl;
-import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.ShaIdService;
-import de.blackforestsolutions.dravelopsroutepersistenceapi.service.supportservice.ShaIdServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,8 +24,6 @@ import java.util.stream.Stream;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getConfiguredOtpMapperApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getRoutePersistenceApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getFurtwangenToWaldkirchJourney;
-import static de.blackforestsolutions.dravelopsdatamodel.testutil.TestUtils.toJson;
-import static de.blackforestsolutions.dravelopsroutpersistenceapi.objectmothers.ShaIdObjectMother.SHA_ID_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +33,6 @@ class JourneyHandlerServiceTest {
     private final JourneyCreateRepositoryService journeyCreateRepositoryService = mock(JourneyCreateRepositoryServiceImpl.class);
     private final JourneyReadRepositoryService journeyReadRepositoryService = mock(JourneyReadRepositoryServiceImpl.class);
     private final BackendApiService backendApiService = mock(BackendApiServiceImpl.class);
-    private final ShaIdService shaIdService = mock(ShaIdServiceImpl.class);
     private final ExceptionHandlerService exceptionHandlerService = spy(ExceptionHandlerServiceImpl.class);
     private final ApiToken configuredOtpMapperApiToken = getConfiguredOtpMapperApiToken();
 
@@ -46,7 +41,6 @@ class JourneyHandlerServiceTest {
             journeyCreateRepositoryService,
             journeyReadRepositoryService,
             backendApiService,
-            shaIdService,
             exceptionHandlerService,
             configuredOtpMapperApiToken
     );
@@ -64,13 +58,21 @@ class JourneyHandlerServiceTest {
 
         when(backendApiService.getManyBy(any(ApiToken.class), any(ApiToken.class), any(RequestHandlerFunction.class), eq(Journey.class)))
                 .thenReturn(Flux.just(getFurtwangenToWaldkirchJourney()));
-
-        when(shaIdService.generateShaIdWith(any(Journey.class)))
-                .thenReturn(SHA_ID_1);
     }
 
     @Test
-    void test_retrieveJourneysFromApiOrRepositoryService_returns_one_journey_with_two_equal_journeys_are_triggered() {
+    void test_retrieveJourneysFromApiOrRepositoryService_returns_one_journey_when_two_journeys_are_equal() {
+        ApiToken testData = getRoutePersistenceApiToken();
+
+        Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
+
+        StepVerifier.create(result)
+                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
+                .verifyComplete();
+    }
+
+    @Test
+    void test_retrieveJourneysFromApiOrRepositoryService_returns_one_journey_when_backend_has_no_result() {
         ApiToken testData = getRoutePersistenceApiToken();
         when(backendApiService.getManyBy(any(ApiToken.class), any(ApiToken.class), any(RequestHandlerFunction.class), eq(Journey.class)))
                 .thenReturn(Flux.empty());
@@ -78,9 +80,23 @@ class JourneyHandlerServiceTest {
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 
         StepVerifier.create(result)
-                .assertNext(journey -> assertThat(toJson(journey)).isEqualTo(toJson(getFurtwangenToWaldkirchJourney())))
+                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
                 .verifyComplete();
     }
+
+    @Test
+    void test_retrieveJourneysFromApiOrRepositoryService_returns_one_journey_when_hazelcast_has_no_results() {
+        ApiToken testData = getRoutePersistenceApiToken();
+        when(journeyReadRepositoryService.getJourneysSortedByDepartureDateWith(any(ApiToken.class)))
+                .thenReturn(Stream.empty());
+
+        Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
+
+        StepVerifier.create(result)
+                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
+                .verifyComplete();
+    }
+
 
     @Test
     void test_retrieveJourneysFromApiOrRepositoryService_with_routePersistenceToke_is_executed_correctly() throws IOException {
@@ -95,15 +111,11 @@ class JourneyHandlerServiceTest {
         verify(journeyReadRepositoryService, times(1)).getJourneysSortedByDepartureDateWith(userRequestArg.capture());
         verify(backendApiService, times(1)).getManyBy(userRequestArg.capture(), configuredOtpMapperArg.capture(), any(RequestHandlerFunction.class), eq(Journey.class));
         verify(journeyCreateRepositoryService, times(1)).writeJourneyToMapWith(journeyArg.capture());
-        verify(shaIdService, times(2)).generateShaIdWith(journeyArg.capture());
         assertThat(userRequestArg.getAllValues().size()).isEqualTo(2);
         assertThat(userRequestArg.getAllValues().get(0)).isEqualToComparingFieldByField(testData);
         assertThat(userRequestArg.getAllValues().get(1)).isEqualToComparingFieldByField(testData);
         assertThat(configuredOtpMapperArg.getValue()).isEqualToComparingFieldByField(configuredOtpMapperApiToken);
-        assertThat(journeyArg.getAllValues().size()).isEqualTo(3);
-        assertThat(toJson(journeyArg.getAllValues().get(0))).isEqualTo(toJson(getFurtwangenToWaldkirchJourney()));
-        assertThat(toJson(journeyArg.getAllValues().get(1))).isEqualTo(toJson(getFurtwangenToWaldkirchJourney()));
-        assertThat(toJson(journeyArg.getAllValues().get(2))).isEqualTo(toJson(getFurtwangenToWaldkirchJourney()));
+        assertThat(journeyArg.getValue()).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney());
     }
 
     @Test
@@ -120,31 +132,17 @@ class JourneyHandlerServiceTest {
     }
 
     @Test
-    void test_retrieveJourneysFromApiOrRepositoryService_returns_one_journey_when_sha1Id_could_not_be_calculated() throws IOException {
-        ApiToken testData = getRoutePersistenceApiToken();
-        when(shaIdService.generateShaIdWith(any(Journey.class)))
-                .thenThrow(IOException.class);
-
-        Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
-
-        StepVerifier.create(result)
-                .expectNextCount(1L)
-                .verifyComplete();
-        verify(exceptionHandlerService, times(2)).handleExceptions(any(IOException.class));
-    }
-
-    @Test
     void test_retrieveJourneysFromApiOrRepositoryService_returns_journeys_when_writeJourneyToMapWith_fails() throws IOException {
         ApiToken testData = getRoutePersistenceApiToken();
         when(journeyCreateRepositoryService.writeJourneyToMapWith(any(Journey.class)))
-                .thenThrow(IOException.class);
+                .thenThrow(NullPointerException.class);
 
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 
         StepVerifier.create(result)
                 .expectNextCount(1L)
                 .verifyComplete();
-        verify(exceptionHandlerService, times(1)).handleExceptions(any(IOException.class));
+        verify(exceptionHandlerService, times(1)).handleExceptions(any(NullPointerException.class));
     }
 
     @Test
