@@ -1,11 +1,13 @@
 package de.blackforestsolutions.dravelopsroutpersistenceapi.service.repositoryservice;
 
+import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
+import de.blackforestsolutions.dravelopsdatamodel.hazelcast.DravelOpsPortableFactory;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyCreateRepositoryService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyCreateRepositoryServiceImpl;
 import org.awaitility.Awaitility;
@@ -16,6 +18,13 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
+import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.DravelOpsPortableFactory.DRAVEL_OPS_FACTORY_ID;
+import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.JourneyClassDefinition.buildJourneyClassDefinition;
+import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.LegClassDefinition.buildLegClassDefinition;
+import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.PointClassDefinition.buildPointClassDefinition;
+import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.PriceClassDefinition.buildPriceClassDefinition;
+import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.TravelPointClassDefinition.buildTravelPointClassDefinition;
+import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.TravelProviderClassDefinition.buildTravelProviderClassDefinition;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getHazelcastApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsByArrivalTime;
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.JOURNEY_MAP;
@@ -30,7 +39,16 @@ class JourneyCreateRepositoryServiceTest {
 
     @BeforeEach
     void init() {
-        hazelcastMock = new TestHazelcastInstanceFactory(1).newHazelcastInstance();
+        Config config = new Config();
+        config.getSerializationConfig().addPortableFactory(DRAVEL_OPS_FACTORY_ID, new DravelOpsPortableFactory());
+        config.getSerializationConfig().addClassDefinition(buildJourneyClassDefinition());
+        config.getSerializationConfig().addClassDefinition(buildPriceClassDefinition());
+        config.getSerializationConfig().addClassDefinition(buildLegClassDefinition());
+        config.getSerializationConfig().addClassDefinition(buildTravelPointClassDefinition());
+        config.getSerializationConfig().addClassDefinition(buildPointClassDefinition());
+        config.getSerializationConfig().addClassDefinition(buildTravelProviderClassDefinition());
+
+        hazelcastMock = new TestHazelcastInstanceFactory(1).newHazelcastInstance(config);
         classUnderTest = new JourneyCreateRepositoryServiceImpl(hazelcastMock, hazelcastApiToken);
     }
 

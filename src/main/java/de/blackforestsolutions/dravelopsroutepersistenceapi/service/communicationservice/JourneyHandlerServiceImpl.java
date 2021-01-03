@@ -48,7 +48,6 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
                 .doOnNext(journey -> {
                     try {
                         journeyCreateRepositoryService.writeJourneyToMapWith(journey);
-                        log.info("Writing Journey to Map was successfull");
                     } catch (Exception e) {
                         exceptionHandlerService.handleExceptions(e);
                     }
