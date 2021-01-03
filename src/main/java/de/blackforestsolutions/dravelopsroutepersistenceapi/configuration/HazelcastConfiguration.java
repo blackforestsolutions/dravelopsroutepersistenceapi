@@ -5,17 +5,12 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsdatamodel.hazelcast.DravelOpsPortableFactory;
+import de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
 
 import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.DravelOpsPortableFactory.DRAVEL_OPS_FACTORY_ID;
-import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.JourneyClassDefinition.buildJourneyClassDefinition;
-import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.LegClassDefinition.buildLegClassDefinition;
-import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.PointClassDefinition.buildPointClassDefinition;
-import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.PriceClassDefinition.buildPriceClassDefinition;
-import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.TravelPointClassDefinition.buildTravelPointClassDefinition;
-import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.TravelProviderClassDefinition.buildTravelProviderClassDefinition;
 
 @SpringBootConfiguration
 public class HazelcastConfiguration {
@@ -46,12 +41,12 @@ public class HazelcastConfiguration {
         // SerializationConfig
         config.getSerializationConfig().addPortableFactory(DRAVEL_OPS_FACTORY_ID, new DravelOpsPortableFactory());
 //        config.getSerializationConfig().setPortableVersion(1);
-        config.getSerializationConfig().addClassDefinition(buildJourneyClassDefinition());
-        config.getSerializationConfig().addClassDefinition(buildPriceClassDefinition());
-        config.getSerializationConfig().addClassDefinition(buildLegClassDefinition());
-        config.getSerializationConfig().addClassDefinition(buildTravelPointClassDefinition());
-        config.getSerializationConfig().addClassDefinition(buildPointClassDefinition());
-        config.getSerializationConfig().addClassDefinition(buildTravelProviderClassDefinition());
+        config.getSerializationConfig().addClassDefinition(JourneyClassDefinition.buildJourneyClassDefinition());
+        config.getSerializationConfig().addClassDefinition(PriceClassDefinition.buildPriceClassDefinition());
+        config.getSerializationConfig().addClassDefinition(LegClassDefinition.buildLegClassDefinition());
+        config.getSerializationConfig().addClassDefinition(TravelPointClassDefinition.buildTravelPointClassDefinition());
+        config.getSerializationConfig().addClassDefinition(PointClassDefinition.buildPointClassDefinition());
+        config.getSerializationConfig().addClassDefinition(TravelProviderClassDefinition.buildTravelProviderClassDefinition());
 
         return config;
     }
