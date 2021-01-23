@@ -15,6 +15,8 @@ import org.springframework.data.geo.Metric;
 import org.springframework.data.geo.Metrics;
 import org.springframework.util.Assert;
 
+import java.util.List;
+
 @SpringBootConfiguration
 public class HazelcastConfiguration {
 
@@ -26,6 +28,8 @@ public class HazelcastConfiguration {
     private int maxPastDaysInCalendar;
     @Value("${hazelcast.timeRangeInMinutes}")
     private int hazelcastTimeRangeInMinutes;
+    @Value("${hazelcast.addresses}")
+    private List<String> hazelcastAddresses;
 
     @Bean(name = "hazelcastApiToken")
     public ApiToken apiToken() {
@@ -38,7 +42,7 @@ public class HazelcastConfiguration {
     @Bean
     public ClientConfig config() {
         ClientConfig config = new ClientConfig();
-//         UserCodeDeploymentConfig
+        config.getNetworkConfig().setAddresses(hazelcastAddresses);
         config.setUserCodeDeploymentConfig(userCodeDeploymentConfig());
         return config;
     }
