@@ -8,4 +8,4 @@ Besides the service writes incoming data from dravelopsotpmapperservice to hazel
 1. Put [settings.xml](https://github.com/blackforestsolutions/dravelopsdocumentation/tree/master/InstallationFiles) to your .m2 folder
 
 #### Deployment
-1. Just open a Pull Request
+1. Just open a Pull Request with #patch | #minor | #major
