@@ -1,16 +1,19 @@
 package de.blackforestsolutions.dravelopsroutepersistenceapi.configuration;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientUserCodeDeploymentConfig;
 import com.hazelcast.core.HazelcastInstance;
-import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
-import de.blackforestsolutions.dravelopsdatamodel.hazelcast.DravelOpsPortableFactory;
-import de.blackforestsolutions.dravelopsdatamodel.hazelcast.classdefinition.*;
+import de.blackforestsolutions.dravelopsdatamodel.*;
+import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.predicates.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
-
-import static de.blackforestsolutions.dravelopsdatamodel.hazelcast.DravelOpsPortableFactory.DRAVEL_OPS_FACTORY_ID;
+import org.springframework.data.domain.Range;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metric;
+import org.springframework.data.geo.Metrics;
+import org.springframework.util.Assert;
 
 @SpringBootConfiguration
 public class HazelcastConfiguration {
@@ -33,54 +36,50 @@ public class HazelcastConfiguration {
     }
 
     @Bean
-    public Config config() {
-        Config config = new Config();
+    public ClientConfig config() {
+        ClientConfig config = new ClientConfig();
 //         UserCodeDeploymentConfig
-//        config.setUserCodeDeploymentConfig(userCodeDeploymentConfig());
-
-        // SerializationConfig
-        config.getSerializationConfig().addPortableFactory(DRAVEL_OPS_FACTORY_ID, new DravelOpsPortableFactory());
-//        config.getSerializationConfig().setPortableVersion(1);
-        config.getSerializationConfig().addClassDefinition(JourneyClassDefinition.buildJourneyClassDefinition());
-        config.getSerializationConfig().addClassDefinition(PriceClassDefinition.buildPriceClassDefinition());
-        config.getSerializationConfig().addClassDefinition(LegClassDefinition.buildLegClassDefinition());
-        config.getSerializationConfig().addClassDefinition(TravelPointClassDefinition.buildTravelPointClassDefinition());
-        config.getSerializationConfig().addClassDefinition(PointClassDefinition.buildPointClassDefinition());
-        config.getSerializationConfig().addClassDefinition(TravelProviderClassDefinition.buildTravelProviderClassDefinition());
-
+        config.setUserCodeDeploymentConfig(userCodeDeploymentConfig());
         return config;
     }
 
     @Bean
-    public HazelcastInstance hazelcastInstance(Config config) {
-        return Hazelcast.newHazelcastInstance(config);
+    public HazelcastInstance hazelcastInstance(ClientConfig config) {
+        return HazelcastClient.newHazelcastClient(config);
     }
 
-//    private ClientUserCodeDeploymentConfig userCodeDeploymentConfig() {
-//        ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
-//        // predicates
-//        clientUserCodeDeploymentConfig.addClass(DeparturePointPredicate.class);
-//        clientUserCodeDeploymentConfig.addClass(ArrivalPointPredicate.class);
-//        clientUserCodeDeploymentConfig.addClass(LanguagePredicate.class);
-//        clientUserCodeDeploymentConfig.addClass(DepartureTimePredicate.class);
-//        clientUserCodeDeploymentConfig.addClass(ArrivalTimePredicate.class);
-//        // spring geo
-//        clientUserCodeDeploymentConfig.addClass(Distance.class);
-//        clientUserCodeDeploymentConfig.addClass(Metric.class);
-//        clientUserCodeDeploymentConfig.addClass(Range.class);
-//        clientUserCodeDeploymentConfig.addClass(Metrics.class);
-//        // datamodel
-//        clientUserCodeDeploymentConfig.addClass(Journey.class);
-//        clientUserCodeDeploymentConfig.addClass(Leg.class);
-//        clientUserCodeDeploymentConfig.addClass(TravelPoint.class);
-//        clientUserCodeDeploymentConfig.addClass(VehicleType.class);
-//        clientUserCodeDeploymentConfig.addClass(TravelProvider.class);
-//        clientUserCodeDeploymentConfig.addClass(Price.class);
-//        clientUserCodeDeploymentConfig.addClass(PriceType.class);
-//        clientUserCodeDeploymentConfig.addClass(Point.class);
-//
-//        clientUserCodeDeploymentConfig.setEnabled(true);
-//        return clientUserCodeDeploymentConfig;
-//    }
+    private ClientUserCodeDeploymentConfig userCodeDeploymentConfig() {
+        ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig = new ClientUserCodeDeploymentConfig();
+        // predicates
+        clientUserCodeDeploymentConfig.addClass(DeparturePointPredicate.class);
+        clientUserCodeDeploymentConfig.addClass(ArrivalPointPredicate.class);
+        clientUserCodeDeploymentConfig.addClass(LanguagePredicate.class);
+        clientUserCodeDeploymentConfig.addClass(DepartureTimePredicate.class);
+        clientUserCodeDeploymentConfig.addClass(ArrivalTimePredicate.class);
+        // spring geo
+        clientUserCodeDeploymentConfig.addClass(Distance.class);
+        clientUserCodeDeploymentConfig.addClass(Metric.class);
+        clientUserCodeDeploymentConfig.addClass(Range.class);
+        clientUserCodeDeploymentConfig.addClass(Metrics.class);
+        clientUserCodeDeploymentConfig.addClass(Assert.class);
+        // datamodel
+        clientUserCodeDeploymentConfig.addClass(Journey.class);
+        clientUserCodeDeploymentConfig.addClass(Journey.JourneyBuilder.class);
+        clientUserCodeDeploymentConfig.addClass(Leg.class);
+        clientUserCodeDeploymentConfig.addClass(Leg.LegBuilder.class);
+        clientUserCodeDeploymentConfig.addClass(TravelPoint.class);
+        clientUserCodeDeploymentConfig.addClass(TravelPoint.TravelPointBuilder.class);
+        clientUserCodeDeploymentConfig.addClass(VehicleType.class);
+        clientUserCodeDeploymentConfig.addClass(TravelProvider.class);
+        clientUserCodeDeploymentConfig.addClass(TravelProvider.TravelProviderBuilder.class);
+        clientUserCodeDeploymentConfig.addClass(Price.class);
+        clientUserCodeDeploymentConfig.addClass(Price.PriceBuilder.class);
+        clientUserCodeDeploymentConfig.addClass(PriceType.class);
+        clientUserCodeDeploymentConfig.addClass(Point.class);
+        clientUserCodeDeploymentConfig.addClass(Point.PointBuilder.class);
+
+        clientUserCodeDeploymentConfig.setEnabled(true);
+        return clientUserCodeDeploymentConfig;
+    }
 
 }
