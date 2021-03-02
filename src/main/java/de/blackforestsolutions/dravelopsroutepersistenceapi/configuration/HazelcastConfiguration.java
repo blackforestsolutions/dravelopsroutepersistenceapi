@@ -26,8 +26,8 @@ public class HazelcastConfiguration {
 
     @Value("${hazelcast.maxPastDaysInCalendar}")
     private int maxPastDaysInCalendar;
-    @Value("${hazelcast.timeRangeInMinutes}")
-    private int hazelcastTimeRangeInMinutes;
+    @Value("${hazelcast.journeySearchWindowInMinutes}")
+    private int journeySearchWindowInMinutes;
     @Value("${hazelcast.addresses}")
     private List<String> hazelcastAddresses;
 
@@ -35,7 +35,7 @@ public class HazelcastConfiguration {
     public ApiToken apiToken() {
         return new ApiToken.ApiTokenBuilder()
                 .setMaxPastDaysInCalendar(maxPastDaysInCalendar)
-                .setHazelcastTimeRangeInMinutes(hazelcastTimeRangeInMinutes)
+                .setJourneySearchWindowInMinutes(journeySearchWindowInMinutes)
                 .build();
     }
 

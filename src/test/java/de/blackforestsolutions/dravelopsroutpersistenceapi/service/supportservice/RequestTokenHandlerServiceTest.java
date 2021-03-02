@@ -51,9 +51,9 @@ class RequestTokenHandlerServiceTest {
     }
 
     @Test
-    void test_mergeJourneyApiTokensWith_routePersistenceApiToken_optimize_as_null_and_configuredOtpMapperApiToken_throws_exception() {
+    void test_mergeJourneyApiTokensWith_routePersistenceApiToken_isArrivalDateTime_as_null_and_configuredOtpMapperApiToken_throws_exception() {
         ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
-        requestTestData.setOptimize(null);
+        requestTestData.setIsArrivalDateTime(null);
         ApiToken configuredOtpMapperTestData = getConfiguredOtpMapperApiToken();
 
         assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
