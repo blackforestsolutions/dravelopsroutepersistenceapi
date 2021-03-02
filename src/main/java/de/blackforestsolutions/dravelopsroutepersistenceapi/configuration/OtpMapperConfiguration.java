@@ -16,14 +16,17 @@ public class OtpMapperConfiguration {
     private int otpMapperPort;
     @Value("${otpmapper.get.journey.path}")
     private String otpMapperJourneyPath;
+    @Value("${otpmapper.maxResults}")
+    private Integer otpMapperMaxResults;
 
-    @Bean(name = "otpmapperApiToken")
+    @Bean(name = "otpMapperApiToken")
     public ApiToken apiToken() {
         return new ApiToken.ApiTokenBuilder()
                 .setProtocol(otpMapperProtocol)
                 .setHost(otpMapperHost)
                 .setPort(otpMapperPort)
                 .setPath(otpMapperJourneyPath)
+                .setMaxResults(otpMapperMaxResults)
                 .build();
     }
 }
