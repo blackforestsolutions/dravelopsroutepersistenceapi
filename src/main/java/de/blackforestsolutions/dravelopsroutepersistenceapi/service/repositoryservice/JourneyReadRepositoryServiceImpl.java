@@ -32,7 +32,7 @@ public class JourneyReadRepositoryServiceImpl implements JourneyReadRepositorySe
     @Override
     public Stream<Journey> getJourneysSortedByDepartureDateWith(ApiToken apiToken) {
         IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
-        return hazelcastJourneys.values(Predicates.and(buildBaseJourneyQueryWith(apiToken), new DepartureTimePredicate(apiToken.getDateTime(), hazelcastApiToken.getHazelcastTimeRangeInMinutes())))
+        return hazelcastJourneys.values(Predicates.and(buildBaseJourneyQueryWith(apiToken), new DepartureTimePredicate(apiToken.getDateTime(), hazelcastApiToken.getJourneySearchWindowInMinutes())))
                 .stream()
                 .sorted(Comparator.comparing(journey -> journey.getLegs().getFirst().getDeparture().getDepartureTime()));
     }
@@ -40,7 +40,7 @@ public class JourneyReadRepositoryServiceImpl implements JourneyReadRepositorySe
     @Override
     public Stream<Journey> getJourneysSortedByArrivalDateWith(ApiToken apiToken) {
         IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
-        return hazelcastJourneys.values(Predicates.and(buildBaseJourneyQueryWith(apiToken), new ArrivalTimePredicate(apiToken.getDateTime(), hazelcastApiToken.getHazelcastTimeRangeInMinutes())))
+        return hazelcastJourneys.values(Predicates.and(buildBaseJourneyQueryWith(apiToken), new ArrivalTimePredicate(apiToken.getDateTime(), hazelcastApiToken.getJourneySearchWindowInMinutes())))
                 .stream()
                 .sorted(Comparator.comparing(journey -> journey.getLegs().getLast().getArrival().getArrivalTime(), Comparator.reverseOrder()));
     }

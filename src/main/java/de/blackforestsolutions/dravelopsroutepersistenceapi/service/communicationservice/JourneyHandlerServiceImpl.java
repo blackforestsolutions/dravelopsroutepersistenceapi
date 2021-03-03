@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
+import java.util.List;
+import java.util.function.Function;
 
 @Slf4j
 @Service
@@ -21,30 +25,37 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
     private final JourneyReadRepositoryService journeyReadRepositoryService;
     private final BackendApiService backendApiService;
     private final ExceptionHandlerService exceptionHandlerService;
-    private final ApiToken otpmapperApiToken;
+    private final ApiToken otpMapperApiToken;
 
     @Autowired
-    public JourneyHandlerServiceImpl(RequestTokenHandlerService requestTokenHandlerService, JourneyCreateRepositoryService journeyCreateRepositoryService, JourneyReadRepositoryService journeyReadRepositoryService, BackendApiService backendApiService, ExceptionHandlerService exceptionHandlerService, ApiToken otpmapperApiToken) {
+    public JourneyHandlerServiceImpl(RequestTokenHandlerService requestTokenHandlerService, JourneyCreateRepositoryService journeyCreateRepositoryService, JourneyReadRepositoryService journeyReadRepositoryService, BackendApiService backendApiService, ExceptionHandlerService exceptionHandlerService, ApiToken otpMapperApiToken) {
         this.requestTokenHandlerService = requestTokenHandlerService;
         this.journeyCreateRepositoryService = journeyCreateRepositoryService;
         this.journeyReadRepositoryService = journeyReadRepositoryService;
         this.backendApiService = backendApiService;
         this.exceptionHandlerService = exceptionHandlerService;
-        this.otpmapperApiToken = otpmapperApiToken;
+        this.otpMapperApiToken = otpMapperApiToken;
     }
 
     @Override
     public Flux<Journey> retrieveJourneysFromApiOrRepositoryService(ApiToken userRequestToken) {
-        return Flux.merge(
-                retrieveJourneysFromRepositoryServiceWith(userRequestToken),
-                retrieveJourneysFromApiServiceWith(userRequestToken)
-        )
-                .distinct(Journey::getId);
+        return Flux.fromIterable(journeyHandlerFunctions())
+                .flatMap(journeyHandlerFunction -> Mono.just(journeyHandlerFunction)
+                        .flatMapMany(backendService -> backendService.apply(userRequestToken))
+                        .subscribeOn(Schedulers.parallel())
+                ).distinct(Journey::getId);
+    }
+
+    private List<Function<ApiToken, Flux<Journey>>> journeyHandlerFunctions() {
+        return List.of(
+                this::retrieveJourneysFromRepositoryServiceWith,
+                this::retrieveJourneysFromApiServiceWith
+        );
     }
 
     private Flux<Journey> retrieveJourneysFromApiServiceWith(ApiToken userRequestToken) {
         return Mono.just(userRequestToken)
-                .flatMapMany(userToken -> backendApiService.getManyBy(userToken, otpmapperApiToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class))
+                .flatMapMany(userToken -> backendApiService.getManyBy(userToken, otpMapperApiToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class))
                 .doOnNext(journey -> {
                     try {
                         journeyCreateRepositoryService.writeJourneyToMapWith(journey);
@@ -52,12 +63,14 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
                         exceptionHandlerService.handleExceptions(e);
                     }
                 })
+                .take(otpMapperApiToken.getMaxResults())
                 .onErrorResume(exceptionHandlerService::handleExceptions);
     }
 
     private Flux<Journey> retrieveJourneysFromRepositoryServiceWith(ApiToken userRequestToken) {
         try {
             return executeJourneyRepositoryServiceWith(userRequestToken)
+                    .take(otpMapperApiToken.getMaxResults())
                     .onErrorResume(exceptionHandlerService::handleExceptions);
         } catch (Exception e) {
             return exceptionHandlerService.handleExceptions(e);

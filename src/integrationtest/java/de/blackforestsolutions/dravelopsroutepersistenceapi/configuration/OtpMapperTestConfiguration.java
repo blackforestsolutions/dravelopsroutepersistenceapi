@@ -20,6 +20,8 @@ public class OtpMapperTestConfiguration {
     private int port;
     @Value("${otpmapper.get.journey.path}")
     private String path;
+    @Value("${otpmapper.maxResults}")
+    private Integer maxResults;
     @Value("${test.apitokens[0].departureCoordinateLongitude}")
     private Double departureCoordinateLongitude;
     @Value("${test.apitokens[0].departureCoordinateLatitude}")
@@ -37,6 +39,7 @@ public class OtpMapperTestConfiguration {
                 .setHost(host)
                 .setPort(port)
                 .setPath(path)
+                .setMaxResults(maxResults)
                 .setDepartureCoordinate(new Point.PointBuilder(departureCoordinateLongitude, departureCoordinateLatitude).build())
                 .setArrivalCoordinate(new Point.PointBuilder(arrivalCoordinateLongitude, arrivalCoordinateLatitude).build());
     }
