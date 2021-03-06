@@ -17,8 +17,7 @@ import org.springframework.http.HttpHeaders;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getConfiguredOtpMapperApiToken;
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getRoutePersistenceApiToken;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.*;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getFurtwangenToWaldkirchJourney;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -40,7 +39,7 @@ class BackendApiServiceTest {
 
     @Test
     void test_getManyBy_routePersistenceApiToken_and_configured_otpMapperApiToken_returns_journeys() {
-        ApiToken configuredTestToken = getConfiguredOtpMapperApiToken();
+        ApiToken configuredTestToken = getConfiguredJourneyOtpMapperApiToken();
         ApiToken routePersistenceToken = getRoutePersistenceApiToken();
 
         Flux<Journey> result = classUnderTest.getManyBy(routePersistenceToken, configuredTestToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class);
@@ -52,7 +51,7 @@ class BackendApiServiceTest {
 
     @Test
     void test_getManyBy_routePersistenceApiToken_and_configured_otpMapperApiToken_returns_no_journeys_when_otp_has_no_journeys_found() {
-        ApiToken configuredTestToken = getConfiguredOtpMapperApiToken();
+        ApiToken configuredTestToken = getConfiguredJourneyOtpMapperApiToken();
         ApiToken routePersistenceToken = getRoutePersistenceApiToken();
         when(callService.postMany(anyString(), any(ApiToken.class), any(HttpHeaders.class), eq(Journey.class)))
                 .thenReturn(Flux.empty());
@@ -66,7 +65,7 @@ class BackendApiServiceTest {
 
     @Test
     void test_getManyBy_routePersistenceApiToken_and_configured_otpMapperApiToken_is_executed_correctly_when_journeys_are_returned() {
-        ApiToken configuredTestToken = getConfiguredOtpMapperApiToken();
+        ApiToken configuredTestToken = getConfiguredJourneyOtpMapperApiToken();
         ApiToken routePersistenceToken = getRoutePersistenceApiToken();
         ArgumentCaptor<String> urlArg = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<ApiToken> bodyArg = ArgumentCaptor.forClass(ApiToken.class);
@@ -77,7 +76,7 @@ class BackendApiServiceTest {
                 .block();
 
         verify(callService, times(1)).postMany(urlArg.capture(), bodyArg.capture(), httpHeadersArg.capture(), eq(Journey.class));
-        assertThat(urlArg.getValue()).isEqualTo("http://localhost:8084/otp/journeys/get");
+        assertThat(urlArg.getValue()).isEqualTo("http://localhost:8084/journeys/otp");
         assertThat(bodyArg.getValue()).isEqualToComparingFieldByFieldRecursively(getRoutePersistenceApiToken());
         assertThat(httpHeadersArg.getValue()).isEqualTo(HttpHeaders.EMPTY);
     }
@@ -87,7 +86,7 @@ class BackendApiServiceTest {
         ArgumentCaptor<Throwable> exceptionArg = ArgumentCaptor.forClass(Throwable.class);
         ApiToken.ApiTokenBuilder routePersistenceToken = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
         routePersistenceToken.setLanguage(null);
-        ApiToken configuredTestToken = getConfiguredOtpMapperApiToken();
+        ApiToken configuredTestToken = getConfiguredJourneyOtpMapperApiToken();
 
         Flux<Journey> result = classUnderTest.getManyBy(routePersistenceToken.build(), configuredTestToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class);
 
@@ -101,7 +100,7 @@ class BackendApiServiceTest {
     @Test
     void test_getManyBy_routePersistenceApiToken_and_configured_apiToken_and_host_as_null_returns_failed_call_status() {
         ArgumentCaptor<Throwable> exceptionArg = ArgumentCaptor.forClass(Throwable.class);
-        ApiToken.ApiTokenBuilder configuredTestToken = new ApiToken.ApiTokenBuilder(getConfiguredOtpMapperApiToken());
+        ApiToken.ApiTokenBuilder configuredTestToken = new ApiToken.ApiTokenBuilder(getConfiguredJourneyOtpMapperApiToken());
         ApiToken routePersistenceToken = getRoutePersistenceApiToken();
         configuredTestToken.setHost(null);
 
@@ -126,7 +125,7 @@ class BackendApiServiceTest {
 
     @Test
     void test_getManyBy_apiToken_and_error_by_call_service_returns_failed_call_status() {
-        ApiToken configuredTestToken = getConfiguredOtpMapperApiToken();
+        ApiToken configuredTestToken = getConfiguredJourneyOtpMapperApiToken();
         ApiToken routePersistenceToken = getRoutePersistenceApiToken();
         when(callService.postMany(anyString(), any(ApiToken.class), any(HttpHeaders.class), eq(Journey.class)))
                 .thenReturn(Flux.error(new Exception()));

@@ -22,13 +22,13 @@ class JourneyControllerTest {
     private final JourneyController classUnderTest = new JourneyController(journeyHandlerService);
 
     @Test
-    void test_retrieveOpenTripPlannerJourneys_is_executed_correctly_and_returns_journeys() {
+    void test_getJourneysBy_apiToken_is_executed_correctly_and_returns_journeys() {
         ApiToken testData = getRoutePersistenceApiToken();
         ArgumentCaptor<ApiToken> requestArg = ArgumentCaptor.forClass(ApiToken.class);
         when(journeyHandlerService.retrieveJourneysFromApiOrRepositoryService(any(ApiToken.class)))
                 .thenReturn(Flux.just(getJourneyWithEmptyFields()));
 
-        Flux<Journey> result = classUnderTest.retrieveOpenTripPlannerJourneys(testData);
+        Flux<Journey> result = classUnderTest.getJourneysBy(testData);
 
         verify(journeyHandlerService, times(1)).retrieveJourneysFromApiOrRepositoryService(requestArg.capture());
         assertThat(requestArg.getValue()).isEqualToComparingFieldByFieldRecursively(getRoutePersistenceApiToken());
@@ -38,12 +38,12 @@ class JourneyControllerTest {
     }
 
     @Test
-    void test_retrieveOpenTripPlannerJourneys_is_executed_correctly_when_no_results_are_available() {
+    void test_getJourneysBy_apiToken_is_executed_correctly_when_no_results_are_available() {
         ApiToken testData = getRoutePersistenceApiToken();
         when(journeyHandlerService.retrieveJourneysFromApiOrRepositoryService(any(ApiToken.class)))
                 .thenReturn(Flux.empty());
 
-        Flux<Journey> result = classUnderTest.retrieveOpenTripPlannerJourneys(testData);
+        Flux<Journey> result = classUnderTest.getJourneysBy(testData);
 
         StepVerifier.create(result)
                 .expectNextCount(0L)

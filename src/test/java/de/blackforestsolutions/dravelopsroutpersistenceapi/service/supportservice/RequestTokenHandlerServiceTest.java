@@ -16,18 +16,18 @@ class RequestTokenHandlerServiceTest {
     @Test
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_and_configuredOtpMapperApiToken_returns_merged_token_for_otpMapperService() {
         ApiToken requestTestData = getRoutePersistenceApiToken();
-        ApiToken configuredOtpMapperTestData = getConfiguredOtpMapperApiToken();
+        ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
         ApiToken result = classUnderTest.mergeJourneyApiTokensWith(requestTestData, configuredOtpMapperTestData);
 
-        assertThat(result).isEqualToComparingFieldByFieldRecursively(getOtpMapperApiToken());
+        assertThat(result).isEqualToComparingFieldByFieldRecursively(getJourneyOtpMapperApiToken());
     }
 
     @Test
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_arrivalCoordinate_as_null_and_configuredOtpMapperApiToken_throws_exception() {
         ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
         requestTestData.setArrivalCoordinate(null);
-        ApiToken configuredOtpMapperTestData = getConfiguredOtpMapperApiToken();
+        ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
         assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
     }
@@ -36,7 +36,7 @@ class RequestTokenHandlerServiceTest {
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_departureCoordinate_as_null_and_configuredOtpMapperApiToken_throws_exception() {
         ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
         requestTestData.setDepartureCoordinate(null);
-        ApiToken configuredOtpMapperTestData = getConfiguredOtpMapperApiToken();
+        ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
         assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
     }
@@ -45,7 +45,7 @@ class RequestTokenHandlerServiceTest {
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_dateTime_as_null_and_configuredOtpMapperApiToken_throws_exception() {
         ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
         requestTestData.setDateTime(null);
-        ApiToken configuredOtpMapperTestData = getConfiguredOtpMapperApiToken();
+        ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
         assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
     }
@@ -54,7 +54,7 @@ class RequestTokenHandlerServiceTest {
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_isArrivalDateTime_as_null_and_configuredOtpMapperApiToken_throws_exception() {
         ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
         requestTestData.setIsArrivalDateTime(null);
-        ApiToken configuredOtpMapperTestData = getConfiguredOtpMapperApiToken();
+        ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
         assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
     }
@@ -63,7 +63,7 @@ class RequestTokenHandlerServiceTest {
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_language_as_null_and_configuredOtpMapperApiToken_throws_exception() {
         ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
         requestTestData.setLanguage(null);
-        ApiToken configuredOtpMapperTestData = getConfiguredOtpMapperApiToken();
+        ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
         assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
     }
