@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 
 @Slf4j
 @RestController
-@RequestMapping("otp/journeys")
+@RequestMapping("journeys")
 public class JourneyController {
 
     private final JourneyHandlerService journeyHandlerService;
@@ -21,8 +21,8 @@ public class JourneyController {
         this.journeyHandlerService = journeyHandlerService;
     }
 
-    @RequestMapping(value = "/get", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Journey> retrieveOpenTripPlannerJourneys(@RequestBody ApiToken request) {
+    @RequestMapping(value = "/otp", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Journey> getJourneysBy(@RequestBody ApiToken request) {
         return journeyHandlerService.retrieveJourneysFromApiOrRepositoryService(request);
     }
 }

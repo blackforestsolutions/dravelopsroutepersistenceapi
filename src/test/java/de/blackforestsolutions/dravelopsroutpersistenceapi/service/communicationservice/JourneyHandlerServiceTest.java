@@ -21,8 +21,7 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getConfiguredOtpMapperApiToken;
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getRoutePersistenceApiToken;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.*;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getFurtwangenToWaldkirchJourney;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -34,7 +33,7 @@ class JourneyHandlerServiceTest {
     private final JourneyReadRepositoryService journeyReadRepositoryService = mock(JourneyReadRepositoryServiceImpl.class);
     private final BackendApiService backendApiService = mock(BackendApiServiceImpl.class);
     private final ExceptionHandlerService exceptionHandlerService = spy(ExceptionHandlerServiceImpl.class);
-    private final ApiToken configuredOtpMapperApiToken = getConfiguredOtpMapperApiToken();
+    private final ApiToken configuredOtpMapperApiToken = getConfiguredJourneyOtpMapperApiToken();
 
     private final JourneyHandlerService classUnderTest = new JourneyHandlerServiceImpl(
             requestTokenHandlerService,
