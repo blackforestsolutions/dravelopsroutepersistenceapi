@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 @TestConfiguration
-@Import(ZonedDateTimeConfiguration.class)
+@Import(ConverterConfiguration.class)
 public class JourneyHandlerServiceTestConfiguration {
 
     @Value("${test.apitokens[0].departureCoordinateLongitude}")
