@@ -5,8 +5,9 @@ import de.blackforestsolutions.dravelopsdatamodel.Journey;
 import de.blackforestsolutions.dravelopsdatamodel.Point;
 
 import java.util.Map;
+import java.util.UUID;
 
-public class ArrivalPointPredicate implements Predicate<String, Journey> {
+public class ArrivalPointPredicate implements Predicate<UUID, Journey> {
 
     private static final long serialVersionUID = -1434743634655172925L;
     /**
@@ -21,7 +22,7 @@ public class ArrivalPointPredicate implements Predicate<String, Journey> {
     }
 
     @Override
-    public boolean apply(Map.Entry<String, Journey> entry) {
+    public boolean apply(Map.Entry<UUID, Journey> entry) {
         Point arrivalPoint = entry.getValue().getLegs().getLast().getArrival().getPoint();
 
         // save way for arrivalPoint.getX() == arrivalPointToCompare.getX() && arrivalPoint.getY() == arrivalPointToCompare.getY();

@@ -2,12 +2,15 @@ package de.blackforestsolutions.dravelopsroutpersistenceapi.service.repositoryse
 
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
 import de.blackforestsolutions.dravelopsdatamodel.Point;
+import de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.predicates.ArrivalPointPredicate;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsByArrivalPoint;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.TEST_UUID_1;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ArrivalPointPredicateTest {
@@ -18,8 +21,8 @@ class ArrivalPointPredicateTest {
 
     @Test
     void test_apply_journeyEntry_returns_true_when_arrivalPointLongitude_and_arrivalPointLatitude_are_congruent() {
-        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(0.0d, 0.0d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(0.0d, 0.0d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -28,8 +31,8 @@ class ArrivalPointPredicateTest {
 
     @Test
     void test_applyEntry_returns_true_when_arrivalPointLongitude_and_arrivalPointLatitude_are_equal_edge_case() {
-        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(0.000001d, 0.000001d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(0.000001d, 0.000001d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -38,8 +41,8 @@ class ArrivalPointPredicateTest {
 
     @Test
     void test_apply_journeyEntry_returns_false_when_arrivalPointLongitude_and_arrivalPointLatitude_are_not_congruent() {
-        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(5.0d, 5.0d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(5.0d, 5.0d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -48,8 +51,8 @@ class ArrivalPointPredicateTest {
 
     @Test
     void test_apply_journeyEntry_returns_false_when_arrivalPointLatitude_is_not_congruent() {
-        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(0.0d, 5.0d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(0.0d, 5.0d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -58,8 +61,8 @@ class ArrivalPointPredicateTest {
 
     @Test
     void test_apply_journeyEntry_returns_false_when_arrivalPointLongitude_is_not_congruent() {
-        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(5.0d, 0.0d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByArrivalPoint(new Point.PointBuilder(5.0d, 0.0d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 

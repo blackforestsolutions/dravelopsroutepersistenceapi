@@ -6,8 +6,10 @@ import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryse
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsByDeparturePoint;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.TEST_UUID_1;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DeparturePointPredicateTest {
@@ -18,8 +20,8 @@ class DeparturePointPredicateTest {
 
     @Test
     void test_apply_journeyEntry_returns_true_when_departurePointLongitude_and_departurePointLatitude_are_congruent() {
-        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(0.0d, 0.0d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(0.0d, 0.0d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -28,8 +30,8 @@ class DeparturePointPredicateTest {
 
     @Test
     void test_applyEntry_returns_true_when_departurePointLongitude_and_departurePointLatitude_are_equal_edge_case() {
-        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(0.000001d, 0.000001d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(0.000001d, 0.000001d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -38,8 +40,8 @@ class DeparturePointPredicateTest {
 
     @Test
     void test_apply_journeyEntry_returns_false_when_departurePointLongitude_and_departurePointLatitude_are_not_congruent() {
-        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(5.0d, 5.0d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(5.0d, 5.0d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -48,8 +50,8 @@ class DeparturePointPredicateTest {
 
     @Test
     void test_apply_journeyEntry_returns_false_when_departurePointLatitude_is_not_congruent() {
-        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(0.0d, 5.0d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(0.0d, 5.0d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -58,8 +60,8 @@ class DeparturePointPredicateTest {
 
     @Test
     void test_apply_journeyEntry_returns_false_when_departurePointLongitude_is_not_congruent() {
-        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(5.0d, 0.0d).build());
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByDeparturePoint(new Point.PointBuilder(5.0d, 0.0d).build(), TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
