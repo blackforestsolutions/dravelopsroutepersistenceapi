@@ -70,7 +70,7 @@ class JourneyHandlerServiceTest {
 
         StepVerifier.create(result)
                 .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
-                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsById(TEST_UUID_5)))
+                .assertNext(journey -> assertThat(journey).isEqualTo(getJourneyWithNoEmptyFieldsById(TEST_UUID_5)))
                 .verifyComplete();
     }
 
@@ -84,7 +84,7 @@ class JourneyHandlerServiceTest {
 
         StepVerifier.create(result)
                 .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
-                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsById(TEST_UUID_3)))
+                .assertNext(journey -> assertThat(journey).isEqualTo(getJourneyWithNoEmptyFieldsById(TEST_UUID_3)))
                 .verifyComplete();
     }
 
@@ -98,7 +98,7 @@ class JourneyHandlerServiceTest {
 
         StepVerifier.create(result)
                 .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
-                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsById(TEST_UUID_5)))
+                .assertNext(journey -> assertThat(journey).isEqualTo(getJourneyWithNoEmptyFieldsById(TEST_UUID_5)))
                 .verifyComplete();
     }
 
@@ -122,7 +122,7 @@ class JourneyHandlerServiceTest {
         assertThat(configuredOtpMapperArg.getValue()).isEqualToComparingFieldByField(configuredOtpMapperApiToken);
         assertThat(journeyArg.getAllValues().size()).isEqualTo(2);
         assertThat(journeyArg.getAllValues().get(0)).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney());
-        assertThat(journeyArg.getAllValues().get(1)).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsById(TEST_UUID_5));
+        assertThat(journeyArg.getAllValues().get(1)).isEqualTo(getJourneyWithNoEmptyFieldsById(TEST_UUID_5));
     }
 
     @Test
