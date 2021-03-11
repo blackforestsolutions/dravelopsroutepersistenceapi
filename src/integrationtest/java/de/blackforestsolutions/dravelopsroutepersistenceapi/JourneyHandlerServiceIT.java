@@ -15,7 +15,7 @@ import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Import(JourneyHandlerServiceTestConfiguration.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 class JourneyHandlerServiceIT {
 
     @Autowired

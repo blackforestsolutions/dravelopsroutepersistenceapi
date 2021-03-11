@@ -21,7 +21,7 @@ import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.JOURNEY_MAP;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 class JourneyCreateRepositoryServiceIT {
 
     @Autowired
