@@ -21,8 +21,11 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.*;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getConfiguredJourneyOtpMapperApiToken;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getRoutePersistenceApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getFurtwangenToWaldkirchJourney;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsById;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -50,28 +53,29 @@ class JourneyHandlerServiceTest {
                 .thenReturn(null);
 
         when(journeyReadRepositoryService.getJourneysSortedByArrivalDateWith(any(ApiToken.class)))
-                .thenReturn(Stream.of(getFurtwangenToWaldkirchJourney()));
+                .thenReturn(Stream.of(getFurtwangenToWaldkirchJourney(), getJourneyWithNoEmptyFieldsById(TEST_UUID_1)));
 
         when(journeyReadRepositoryService.getJourneysSortedByDepartureDateWith(any(ApiToken.class)))
-                .thenReturn(Stream.of(getFurtwangenToWaldkirchJourney()));
+                .thenReturn(Stream.of(getFurtwangenToWaldkirchJourney(), getJourneyWithNoEmptyFieldsById(TEST_UUID_3)));
 
         when(backendApiService.getManyBy(any(ApiToken.class), any(ApiToken.class), any(RequestHandlerFunction.class), eq(Journey.class)))
-                .thenReturn(Flux.just(getFurtwangenToWaldkirchJourney()));
+                .thenReturn(Flux.just(getFurtwangenToWaldkirchJourney(), getJourneyWithNoEmptyFieldsById(TEST_UUID_5)));
     }
 
     @Test
-    void test_retrieveJourneysFromApiOrRepositoryService_returns_one_journey_when_two_journeys_are_equal() {
+    void test_retrieveJourneysFromApiOrRepositoryService_returns_two_journey_when_two_journeys_are_equal() {
         ApiToken testData = getRoutePersistenceApiToken();
 
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 
         StepVerifier.create(result)
                 .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
+                .assertNext(journey -> assertThat(journey).isEqualTo(getJourneyWithNoEmptyFieldsById(TEST_UUID_5)))
                 .verifyComplete();
     }
 
     @Test
-    void test_retrieveJourneysFromApiOrRepositoryService_returns_one_journey_when_backend_has_no_result() {
+    void test_retrieveJourneysFromApiOrRepositoryService_returns_two_journey_when_backend_has_no_result() {
         ApiToken testData = getRoutePersistenceApiToken();
         when(backendApiService.getManyBy(any(ApiToken.class), any(ApiToken.class), any(RequestHandlerFunction.class), eq(Journey.class)))
                 .thenReturn(Flux.empty());
@@ -80,11 +84,12 @@ class JourneyHandlerServiceTest {
 
         StepVerifier.create(result)
                 .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
+                .assertNext(journey -> assertThat(journey).isEqualTo(getJourneyWithNoEmptyFieldsById(TEST_UUID_3)))
                 .verifyComplete();
     }
 
     @Test
-    void test_retrieveJourneysFromApiOrRepositoryService_returns_one_journey_when_hazelcast_has_no_results() {
+    void test_retrieveJourneysFromApiOrRepositoryService_returns_two_journey_when_hazelcast_has_no_results() {
         ApiToken testData = getRoutePersistenceApiToken();
         when(journeyReadRepositoryService.getJourneysSortedByDepartureDateWith(any(ApiToken.class)))
                 .thenReturn(Stream.empty());
@@ -93,12 +98,13 @@ class JourneyHandlerServiceTest {
 
         StepVerifier.create(result)
                 .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney()))
+                .assertNext(journey -> assertThat(journey).isEqualTo(getJourneyWithNoEmptyFieldsById(TEST_UUID_5)))
                 .verifyComplete();
     }
 
 
     @Test
-    void test_retrieveJourneysFromApiOrRepositoryService_with_routePersistenceToke_is_executed_correctly() throws IOException {
+    void test_retrieveJourneysFromApiOrRepositoryService_with_routePersistenceToken_is_executed_correctly() throws IOException {
         ApiToken testData = getRoutePersistenceApiToken();
         ArgumentCaptor<ApiToken> userRequestArg = ArgumentCaptor.forClass(ApiToken.class);
         ArgumentCaptor<ApiToken> configuredOtpMapperArg = ArgumentCaptor.forClass(ApiToken.class);
@@ -109,16 +115,18 @@ class JourneyHandlerServiceTest {
         verify(journeyReadRepositoryService, times(0)).getJourneysSortedByArrivalDateWith(any(ApiToken.class));
         verify(journeyReadRepositoryService, times(1)).getJourneysSortedByDepartureDateWith(userRequestArg.capture());
         verify(backendApiService, times(1)).getManyBy(userRequestArg.capture(), configuredOtpMapperArg.capture(), any(RequestHandlerFunction.class), eq(Journey.class));
-        verify(journeyCreateRepositoryService, times(1)).writeJourneyToMapWith(journeyArg.capture());
+        verify(journeyCreateRepositoryService, times(2)).writeJourneyToMapWith(journeyArg.capture());
         assertThat(userRequestArg.getAllValues().size()).isEqualTo(2);
         assertThat(userRequestArg.getAllValues().get(0)).isEqualToComparingFieldByField(testData);
         assertThat(userRequestArg.getAllValues().get(1)).isEqualToComparingFieldByField(testData);
         assertThat(configuredOtpMapperArg.getValue()).isEqualToComparingFieldByField(configuredOtpMapperApiToken);
-        assertThat(journeyArg.getValue()).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney());
+        assertThat(journeyArg.getAllValues().size()).isEqualTo(2);
+        assertThat(journeyArg.getAllValues().get(0)).isEqualToComparingFieldByFieldRecursively(getFurtwangenToWaldkirchJourney());
+        assertThat(journeyArg.getAllValues().get(1)).isEqualTo(getJourneyWithNoEmptyFieldsById(TEST_UUID_5));
     }
 
     @Test
-    void test_retrieveJourneysFromApiOrRepositoryService_with_routePersistenceToke_is_executed_correctly_when_arrivalRepository_is_called() {
+    void test_retrieveJourneysFromApiOrRepositoryService_with_routePersistenceToken_is_executed_correctly_when_arrivalRepository_is_called() {
         ApiToken.ApiTokenBuilder testData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
         testData.setIsArrivalDateTime(true);
         ArgumentCaptor<ApiToken> userRequestArg = ArgumentCaptor.forClass(ApiToken.class);
@@ -139,9 +147,9 @@ class JourneyHandlerServiceTest {
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(1L)
+                .expectNextCount(2L)
                 .verifyComplete();
-        verify(exceptionHandlerService, times(1)).handleExceptions(any(NullPointerException.class));
+        verify(exceptionHandlerService, times(2)).handleExceptions(any(NullPointerException.class));
     }
 
     @Test
@@ -153,7 +161,7 @@ class JourneyHandlerServiceTest {
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(1L)
+                .expectNextCount(2L)
                 .verifyComplete();
         verify(exceptionHandlerService, times(1)).handleExceptions(any(Exception.class));
     }
@@ -167,7 +175,7 @@ class JourneyHandlerServiceTest {
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 
         StepVerifier.create(result)
-                .expectNextCount(1L)
+                .expectNextCount(2L)
                 .verifyComplete();
         verify(exceptionHandlerService, times(1)).handleExceptions(any(HazelcastException.class));
     }
@@ -180,8 +188,9 @@ class JourneyHandlerServiceTest {
                 .thenThrow(new HazelcastException());
 
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData.build());
+
         StepVerifier.create(result)
-                .expectNextCount(1L)
+                .expectNextCount(2L)
                 .verifyComplete();
         verify(exceptionHandlerService, times(1)).handleExceptions(any(HazelcastException.class));
     }

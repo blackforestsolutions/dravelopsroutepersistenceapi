@@ -5,8 +5,9 @@ import de.blackforestsolutions.dravelopsdatamodel.Journey;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.UUID;
 
-public class DepartureTimePredicate implements Predicate<String, Journey> {
+public class DepartureTimePredicate implements Predicate<UUID, Journey> {
 
     private static final long serialVersionUID = -6260183345401394137L;
     private final ZonedDateTime minDepartureTimeToCompare;
@@ -18,7 +19,7 @@ public class DepartureTimePredicate implements Predicate<String, Journey> {
     }
 
     @Override
-    public boolean apply(Map.Entry<String, Journey> entry) {
+    public boolean apply(Map.Entry<UUID, Journey> entry) {
         ZonedDateTime departureTime = entry.getValue().getLegs().getFirst().getDeparture().getDepartureTime();
 
         if (departureTime.equals(minDepartureTimeToCompare) || departureTime.equals(maxDepartureTimeToCompare)) {

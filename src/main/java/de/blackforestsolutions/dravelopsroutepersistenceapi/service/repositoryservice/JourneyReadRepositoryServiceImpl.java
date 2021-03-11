@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.HAZELCAST_INSTANCE;
@@ -31,7 +32,7 @@ public class JourneyReadRepositoryServiceImpl implements JourneyReadRepositorySe
 
     @Override
     public Stream<Journey> getJourneysSortedByDepartureDateWith(ApiToken apiToken) {
-        IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
+        IMap<UUID, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
         return hazelcastJourneys.values(Predicates.and(buildBaseJourneyQueryWith(apiToken), new DepartureTimePredicate(apiToken.getDateTime(), hazelcastApiToken.getJourneySearchWindowInMinutes())))
                 .stream()
                 .sorted(Comparator.comparing(journey -> journey.getLegs().getFirst().getDeparture().getDepartureTime()));
@@ -39,16 +40,16 @@ public class JourneyReadRepositoryServiceImpl implements JourneyReadRepositorySe
 
     @Override
     public Stream<Journey> getJourneysSortedByArrivalDateWith(ApiToken apiToken) {
-        IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
+        IMap<UUID, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
         return hazelcastJourneys.values(Predicates.and(buildBaseJourneyQueryWith(apiToken), new ArrivalTimePredicate(apiToken.getDateTime(), hazelcastApiToken.getJourneySearchWindowInMinutes())))
                 .stream()
                 .sorted(Comparator.comparing(journey -> journey.getLegs().getLast().getArrival().getArrivalTime(), Comparator.reverseOrder()));
     }
 
     private Predicate<String, Journey> buildBaseJourneyQueryWith(ApiToken apiToken) {
-        Predicate<String, Journey> departurePointCondition = new DeparturePointPredicate(apiToken.getDepartureCoordinate());
-        Predicate<String, Journey> arrivalPointCondition = new ArrivalPointPredicate(apiToken.getArrivalCoordinate());
-        Predicate<String, Journey> languageCondition = new LanguagePredicate(apiToken.getLanguage());
+        Predicate<UUID, Journey> departurePointCondition = new DeparturePointPredicate(apiToken.getDepartureCoordinate());
+        Predicate<UUID, Journey> arrivalPointCondition = new ArrivalPointPredicate(apiToken.getArrivalCoordinate());
+        Predicate<UUID, Journey> languageCondition = new LanguagePredicate(apiToken.getLanguage());
 
         return Predicates.and(departurePointCondition, arrivalPointCondition, languageCondition);
     }

@@ -16,12 +16,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getApiTokenWithNoEmptyFields;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getApiTokenWithNoEmptyFieldsBy;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsBy;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.TEST_UUID_1;
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.HAZELCAST_INSTANCE;
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.JOURNEY_MAP;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,15 +49,15 @@ class JourneyReadRepositoryIT {
                 ZonedDateTime.now().plusMinutes(timeRangeInMinutes),
                 new Locale("de")
         );
-        Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctTestToken);
-        IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
+        Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctTestToken, TEST_UUID_1);
+        IMap<UUID, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
         hazelcastJourneys.put(correctJourney.getId(), correctJourney);
 
         Stream<Journey> result = classUnderTest.getJourneysSortedByDepartureDateWith(correctTestToken);
         List<Journey> listResult = result.collect(Collectors.toList());
 
         assertThat(listResult.size()).isEqualTo(1);
-        assertThat(listResult.get(0)).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsBy(correctTestToken));
+        assertThat(listResult.get(0)).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsBy(correctTestToken, TEST_UUID_1));
     }
 
     @Test
@@ -75,15 +77,15 @@ class JourneyReadRepositoryIT {
                 ZonedDateTime.now().minusMinutes(timeRangeInMinutes),
                 new Locale("de")
         );
-        IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
-        Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctTestToken);
+        IMap<UUID, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
+        Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctTestToken, TEST_UUID_1);
         hazelcastJourneys.put(correctJourney.getId(), correctJourney);
 
         Stream<Journey> result = classUnderTest.getJourneysSortedByArrivalDateWith(correctTestToken);
         List<Journey> listResult = result.collect(Collectors.toList());
 
         assertThat(listResult.size()).isEqualTo(1);
-        assertThat(listResult.get(0)).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsBy(correctTestToken));
+        assertThat(listResult.get(0)).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsBy(correctTestToken, TEST_UUID_1));
     }
 
     @Test

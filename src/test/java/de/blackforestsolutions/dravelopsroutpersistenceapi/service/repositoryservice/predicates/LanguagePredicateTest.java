@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsByLanguage;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.TEST_UUID_1;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LanguagePredicateTest {
@@ -19,8 +21,8 @@ class LanguagePredicateTest {
     @Test
     void test_apply_journeyEntry_returns_true_when_languageToCompare_and_testLanguage_are_equal() {
         Locale testLanguage = new Locale("de");
-        Journey testData = getJourneyWithNoEmptyFieldsByLanguage(testLanguage);
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByLanguage(testLanguage, TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 
@@ -30,8 +32,8 @@ class LanguagePredicateTest {
     @Test
     void test_apply_journeyEntry_returns_false_when_languageToCompare_and_testLanguage_are_not_equal() {
         Locale testLanguage = new Locale("en");
-        Journey testData = getJourneyWithNoEmptyFieldsByLanguage(testLanguage);
-        Map.Entry<String, Journey> testEntry = Map.entry(testData.getId(), testData);
+        Journey testData = getJourneyWithNoEmptyFieldsByLanguage(testLanguage, TEST_UUID_1);
+        Map.Entry<UUID, Journey> testEntry = Map.entry(testData.getId(), testData);
 
         boolean result = classUnderTest.apply(testEntry);
 

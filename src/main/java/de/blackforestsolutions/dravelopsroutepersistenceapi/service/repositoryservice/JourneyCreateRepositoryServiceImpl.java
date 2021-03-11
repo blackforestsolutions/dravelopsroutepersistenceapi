@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.*;
@@ -30,7 +31,7 @@ public class JourneyCreateRepositoryServiceImpl implements JourneyCreateReposito
 
     @Override
     public Journey writeJourneyToMapWith(Journey journey) {
-        IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
+        IMap<UUID, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
         long ttl = calculateTimeToLiveInSecondsWith(journey);
         return hazelcastJourneys.putIfAbsent(journey.getId(), journey, ttl, TimeUnit.SECONDS);
     }

@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsByArrivalTime;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.TEST_UUID_1;
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.HAZELCAST_INSTANCE;
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.JOURNEY_MAP;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +34,7 @@ class JourneyCreateRepositoryServiceIT {
     @Test
     void test_writeJourneyToMapWith_testJourney_lives_one_second_in_hazelcast_server() throws IOException {
         IMap<String, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
-        Journey testData = getJourneyWithNoEmptyFieldsByArrivalTime(Instant.ofEpochMilli(Long.MIN_VALUE).atZone(ZoneOffset.UTC));
+        Journey testData = getJourneyWithNoEmptyFieldsByArrivalTime(Instant.ofEpochMilli(Long.MIN_VALUE).atZone(ZoneOffset.UTC), TEST_UUID_1);
 
         Journey result = classUnderTest.writeJourneyToMapWith(testData);
 

@@ -43,7 +43,8 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
                 .flatMap(journeyHandlerFunction -> Mono.just(journeyHandlerFunction)
                         .flatMapMany(backendService -> backendService.apply(userRequestToken))
                         .subscribeOn(Schedulers.parallel())
-                ).distinct(Journey::getId);
+                )
+                .distinct();
     }
 
     private List<Function<ApiToken, Flux<Journey>>> journeyHandlerFunctions() {
