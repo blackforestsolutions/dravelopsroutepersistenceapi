@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -29,6 +30,7 @@ import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class JourneyReadRepositoryIT {
 
     @Value("${hazelcast.journeySearchWindowInMinutes}")
