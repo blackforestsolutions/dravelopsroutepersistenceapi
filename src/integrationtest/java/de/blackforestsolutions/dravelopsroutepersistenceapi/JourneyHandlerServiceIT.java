@@ -1,11 +1,14 @@
 package de.blackforestsolutions.dravelopsroutepersistenceapi;
 
+import com.hazelcast.core.HazelcastInstance;
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.JourneyHandlerServiceTestConfiguration;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.communicationservice.JourneyHandlerService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
@@ -13,6 +16,8 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.CoordinateConfiguration.*;
+import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.HAZELCAST_INSTANCE;
+import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.JOURNEY_MAP;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Import(JourneyHandlerServiceTestConfiguration.class)
@@ -24,11 +29,15 @@ class JourneyHandlerServiceIT {
     private JourneyHandlerService classUnderTest;
 
     @Autowired
-    private ApiToken.ApiTokenBuilder routePersistenceApiToken;
+    private ApiToken routePersistenceApiToken;
+
+    @Autowired
+    @Qualifier(HAZELCAST_INSTANCE)
+    private HazelcastInstance hazelcastInstance;
 
     @Test
     void test_retrieveJourneysFromApiOrRepositoryService_returns_journeys() {
-        ApiToken testData = routePersistenceApiToken.build();
+        ApiToken testData = new ApiToken.ApiTokenBuilder(routePersistenceApiToken).build();
 
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 
@@ -74,4 +83,10 @@ class JourneyHandlerServiceIT {
                 })
                 .verifyComplete();
     }
+
+    @AfterEach
+    void tearDown() {
+        hazelcastInstance.getMap(JOURNEY_MAP).clear();
+    }
+
 }
