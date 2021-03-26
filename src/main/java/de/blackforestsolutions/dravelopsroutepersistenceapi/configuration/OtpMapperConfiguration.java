@@ -16,8 +16,8 @@ public class OtpMapperConfiguration {
     private int otpMapperPort;
     @Value("${otpmapper.get.journey.path}")
     private String otpMapperJourneyPath;
-    @Value("${otpmapper.maxResults}")
-    private Integer otpMapperMaxResults;
+    @Value("${graphql.playground.tabs[0].maxResults}")
+    private Integer maxResults;
 
     @Bean(name = "otpMapperApiToken")
     public ApiToken apiToken() {
@@ -26,7 +26,7 @@ public class OtpMapperConfiguration {
                 .setHost(otpMapperHost)
                 .setPort(otpMapperPort)
                 .setPath(otpMapperJourneyPath)
-                .setMaxResults(otpMapperMaxResults)
+                .setMaxResults(maxResults)
                 .build();
     }
 }

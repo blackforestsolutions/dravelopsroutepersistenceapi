@@ -24,7 +24,7 @@ public class HazelcastConfiguration {
     public static final int JOURNEY_MAP_TTL_STANDARD = 1;
     public static final String HAZELCAST_INSTANCE = "hazelcastInstance";
 
-    @Value("${hazelcast.maxPastDaysInCalendar}")
+    @Value("${graphql.playground.tabs[0].maxPastDaysInCalendar}")
     private int maxPastDaysInCalendar;
     @Value("${hazelcast.journeySearchWindowInMinutes}")
     private int journeySearchWindowInMinutes;

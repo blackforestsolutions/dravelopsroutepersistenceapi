@@ -14,12 +14,15 @@ public class OtpMapperTestConfiguration {
 
     @Value("${otpmapper.get.journey.path}")
     private String path;
+    @Value("${graphql.playground.tabs[0].maxResults}")
+    private Integer maxResults;
 
 
     @Bean(name = "journeyOtpMapperApiTokenIT")
     @ConfigurationProperties(prefix = "otpmapper")
     public ApiToken.ApiTokenBuilder apiToken(@Autowired ApiToken routePersistenceApiToken) {
         return new ApiToken.ApiTokenBuilder(routePersistenceApiToken)
-                .setPath(path);
+                .setPath(path)
+                .setMaxResults(maxResults);
     }
 }
