@@ -127,11 +127,11 @@ class JourneyHandlerServiceTest {
 
     @Test
     void test_retrieveJourneysFromApiOrRepositoryService_with_routePersistenceToken_is_executed_correctly_when_arrivalRepository_is_called() {
-        ApiToken.ApiTokenBuilder testData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
+        ApiToken testData = new ApiToken(getRoutePersistenceApiToken());
         testData.setIsArrivalDateTime(true);
         ArgumentCaptor<ApiToken> userRequestArg = ArgumentCaptor.forClass(ApiToken.class);
 
-        classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData.build()).collectList().block();
+        classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData).collectList().block();
 
         verify(journeyReadRepositoryService, times(1)).getJourneysSortedByArrivalDateWith(userRequestArg.capture());
         verify(journeyReadRepositoryService, times(0)).getJourneysSortedByDepartureDateWith(any(ApiToken.class));
@@ -182,12 +182,12 @@ class JourneyHandlerServiceTest {
 
     @Test
     void test_retrieveJourneysFromApiOrRepositoryService_returns_journeys_from_api_when_arrivalDateRepositoryService_throws_exception() {
-        ApiToken.ApiTokenBuilder testData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
+        ApiToken testData = new ApiToken(getRoutePersistenceApiToken());
         testData.setIsArrivalDateTime(true);
         when(journeyReadRepositoryService.getJourneysSortedByArrivalDateWith(any(ApiToken.class)))
                 .thenThrow(new HazelcastException());
 
-        Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData.build());
+        Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 
         StepVerifier.create(result)
                 .expectNextCount(2L)

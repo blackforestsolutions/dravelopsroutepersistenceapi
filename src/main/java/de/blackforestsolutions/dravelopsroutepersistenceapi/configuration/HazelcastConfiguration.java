@@ -8,6 +8,7 @@ import de.blackforestsolutions.dravelopsdatamodel.*;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.predicates.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Range;
 import org.springframework.data.geo.Distance;
@@ -17,6 +18,7 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 
+@RefreshScope
 @SpringBootConfiguration
 public class HazelcastConfiguration {
 
@@ -31,14 +33,16 @@ public class HazelcastConfiguration {
     @Value("${hazelcast.addresses}")
     private List<String> hazelcastAddresses;
 
-    @Bean(name = "hazelcastApiToken")
-    public ApiToken apiToken() {
-        return new ApiToken.ApiTokenBuilder()
-                .setMaxPastDaysInCalendar(maxPastDaysInCalendar)
-                .setJourneySearchWindowInMinutes(journeySearchWindowInMinutes)
-                .build();
+    @RefreshScope
+    @Bean
+    public ApiToken hazelcastApiToken() {
+        ApiToken apiToken = new ApiToken();
+        apiToken.setMaxPastDaysInCalendar(maxPastDaysInCalendar);
+        apiToken.setJourneySearchWindowInMinutes(journeySearchWindowInMinutes);
+        return apiToken;
     }
 
+    @RefreshScope
     @Bean
     public ClientConfig config() {
         ClientConfig config = new ClientConfig();
@@ -47,6 +51,7 @@ public class HazelcastConfiguration {
         return config;
     }
 
+    @RefreshScope
     @Bean
     public HazelcastInstance hazelcastInstance(ClientConfig config) {
         return HazelcastClient.newHazelcastClient(config);

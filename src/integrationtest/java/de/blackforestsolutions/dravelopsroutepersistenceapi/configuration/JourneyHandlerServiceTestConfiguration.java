@@ -30,12 +30,14 @@ public class JourneyHandlerServiceTestConfiguration {
 
     @Bean
     public ApiToken routePersistenceApiToken() {
-        return new ApiToken.ApiTokenBuilder()
-                .setDepartureCoordinate(new Point.PointBuilder(departureLongitude, departureLatitude).build())
-                .setArrivalCoordinate(new Point.PointBuilder(arrivalLongitude, arrivalLatitude).build())
-                .setDateTime(ZonedDateTime.parse(dateTime))
-                .setIsArrivalDateTime(isArrivalDateTime)
-                .setLanguage(language)
-                .build();
+        ApiToken apiToken = new ApiToken();
+
+        apiToken.setDepartureCoordinate(new Point.PointBuilder(departureLongitude, departureLatitude).build());
+        apiToken.setArrivalCoordinate(new Point.PointBuilder(arrivalLongitude, arrivalLatitude).build());
+        apiToken.setDateTime(ZonedDateTime.parse(dateTime));
+        apiToken.setIsArrivalDateTime(isArrivalDateTime);
+        apiToken.setLanguage(language);
+
+        return apiToken;
     }
 }

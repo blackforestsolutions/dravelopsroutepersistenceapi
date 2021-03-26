@@ -18,11 +18,12 @@ public class OtpMapperTestConfiguration {
     private Integer maxResults;
 
 
-    @Bean(name = "journeyOtpMapperApiTokenIT")
+    @Bean
     @ConfigurationProperties(prefix = "otpmapper")
-    public ApiToken.ApiTokenBuilder apiToken(@Autowired ApiToken routePersistenceApiToken) {
-        return new ApiToken.ApiTokenBuilder(routePersistenceApiToken)
-                .setPath(path)
-                .setMaxResults(maxResults);
+    public ApiToken journeyOtpMapperApiTokenIT(@Autowired ApiToken routePersistenceApiToken) {
+        ApiToken apiToken = new ApiToken(routePersistenceApiToken);
+        apiToken.setPath(path);
+        apiToken.setMaxResults(maxResults);
+        return apiToken;
     }
 }

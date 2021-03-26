@@ -25,47 +25,47 @@ class RequestTokenHandlerServiceTest {
 
     @Test
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_arrivalCoordinate_as_null_and_configuredOtpMapperApiToken_throws_exception() {
-        ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
+        ApiToken requestTestData = new ApiToken(getRoutePersistenceApiToken());
         requestTestData.setArrivalCoordinate(null);
         ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
-        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
+        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData, configuredOtpMapperTestData));
     }
 
     @Test
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_departureCoordinate_as_null_and_configuredOtpMapperApiToken_throws_exception() {
-        ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
+        ApiToken requestTestData = new ApiToken(getRoutePersistenceApiToken());
         requestTestData.setDepartureCoordinate(null);
         ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
-        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
+        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData, configuredOtpMapperTestData));
     }
 
     @Test
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_dateTime_as_null_and_configuredOtpMapperApiToken_throws_exception() {
-        ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
+        ApiToken requestTestData = new ApiToken(getRoutePersistenceApiToken());
         requestTestData.setDateTime(null);
         ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
-        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
+        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData, configuredOtpMapperTestData));
     }
 
     @Test
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_isArrivalDateTime_as_null_and_configuredOtpMapperApiToken_throws_exception() {
-        ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
+        ApiToken requestTestData = new ApiToken(getRoutePersistenceApiToken());
         requestTestData.setIsArrivalDateTime(null);
         ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
-        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
+        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData, configuredOtpMapperTestData));
     }
 
     @Test
     void test_mergeJourneyApiTokensWith_routePersistenceApiToken_language_as_null_and_configuredOtpMapperApiToken_throws_exception() {
-        ApiToken.ApiTokenBuilder requestTestData = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
+        ApiToken requestTestData = new ApiToken(getRoutePersistenceApiToken());
         requestTestData.setLanguage(null);
         ApiToken configuredOtpMapperTestData = getConfiguredJourneyOtpMapperApiToken();
 
-        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData.build(), configuredOtpMapperTestData));
+        assertThrows(NullPointerException.class, () -> classUnderTest.mergeJourneyApiTokensWith(requestTestData, configuredOtpMapperTestData));
     }
 
 }

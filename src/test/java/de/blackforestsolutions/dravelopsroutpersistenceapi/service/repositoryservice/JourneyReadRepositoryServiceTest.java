@@ -53,7 +53,8 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.now(),
                 new Locale("de")
         );
-        ApiToken wrongLanguageToken = new ApiToken.ApiTokenBuilder(correctToken).setLanguage(new Locale("en")).build();
+        ApiToken wrongLanguageToken = new ApiToken(correctToken);
+        wrongLanguageToken.setLanguage(new Locale("en"));
         Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctToken, TEST_UUID_1);
         Journey wrongJourney = getJourneyWithNoEmptyFieldsBy(wrongLanguageToken, TEST_UUID_2);
         IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
@@ -75,7 +76,8 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.now(),
                 new Locale("de")
         );
-        ApiToken wrongLanguageToken = new ApiToken.ApiTokenBuilder(correctToken).setLanguage(new Locale("en")).build();
+        ApiToken wrongLanguageToken = new ApiToken(correctToken);
+        wrongLanguageToken.setLanguage(new Locale("en"));
         Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctToken, TEST_UUID_1);
         Journey wrongJourney = getJourneyWithNoEmptyFieldsBy(wrongLanguageToken, TEST_UUID_2);
         IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
@@ -97,9 +99,8 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.now(),
                 new Locale("de")
         );
-        ApiToken wrongArrivalPointToken = new ApiToken.ApiTokenBuilder(correctToken)
-                .setArrivalCoordinate(new Point.PointBuilder(5.0d, 5.0d).build())
-                .build();
+        ApiToken wrongArrivalPointToken = new ApiToken(correctToken);
+        wrongArrivalPointToken.setArrivalCoordinate(new Point.PointBuilder(5.0d, 5.0d).build());
         Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctToken, TEST_UUID_1);
         Journey wrongJourney = getJourneyWithNoEmptyFieldsBy(wrongArrivalPointToken, TEST_UUID_2);
         IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
@@ -121,9 +122,8 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.now(),
                 new Locale("de")
         );
-        ApiToken wrongArrivalPointToken = new ApiToken.ApiTokenBuilder(correctToken)
-                .setArrivalCoordinate(new Point.PointBuilder(5.0d, 5.0d).build())
-                .build();
+        ApiToken wrongArrivalPointToken = new ApiToken(correctToken);
+        wrongArrivalPointToken.setArrivalCoordinate(new Point.PointBuilder(5.0d, 5.0d).build());
         Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctToken, TEST_UUID_1);
         Journey wrongJourney = getJourneyWithNoEmptyFieldsBy(wrongArrivalPointToken, TEST_UUID_2);
         IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
@@ -145,9 +145,8 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.now(),
                 new Locale("de")
         );
-        ApiToken wrongDeparturePointToken = new ApiToken.ApiTokenBuilder(correctToken)
-                .setDepartureCoordinate(new Point.PointBuilder(5.0d, 5.0d).build())
-                .build();
+        ApiToken wrongDeparturePointToken = new ApiToken(correctToken);
+        wrongDeparturePointToken.setDepartureCoordinate(new Point.PointBuilder(5.0d, 5.0d).build());
         Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctToken, TEST_UUID_1);
         Journey wrongJourney = getJourneyWithNoEmptyFieldsBy(wrongDeparturePointToken, TEST_UUID_2);
         IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
@@ -169,9 +168,8 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.now(),
                 new Locale("de")
         );
-        ApiToken wrongDeparturePointToken = new ApiToken.ApiTokenBuilder(correctToken)
-                .setDepartureCoordinate(new Point.PointBuilder(5.0d, 5.0d).build())
-                .build();
+        ApiToken wrongDeparturePointToken = new ApiToken(correctToken);
+        wrongDeparturePointToken.setDepartureCoordinate(new Point.PointBuilder(5.0d, 5.0d).build());
         Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctToken, TEST_UUID_1);
         Journey wrongJourney = getJourneyWithNoEmptyFieldsBy(wrongDeparturePointToken, TEST_UUID_2);
         IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
@@ -193,9 +191,8 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.now(),
                 new Locale("de")
         );
-        ApiToken wrongDepartureTimeToken = new ApiToken.ApiTokenBuilder(correctToken)
-                .setDateTime(ZonedDateTime.now().plusDays(1))
-                .build();
+        ApiToken wrongDepartureTimeToken = new ApiToken(correctToken);
+        wrongDepartureTimeToken.setDateTime(ZonedDateTime.now().plusDays(1));
         Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctToken, TEST_UUID_1);
         Journey wrongJourney = getJourneyWithNoEmptyFieldsBy(wrongDepartureTimeToken, TEST_UUID_2);
         IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
@@ -217,7 +214,8 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.now(),
                 new Locale("de")
         );
-        ApiToken wrongArrivalTimeToken = new ApiToken.ApiTokenBuilder(correctToken).setDateTime(ZonedDateTime.now().minusDays(1)).build();
+        ApiToken wrongArrivalTimeToken = new ApiToken(correctToken);
+        wrongArrivalTimeToken.setDateTime(ZonedDateTime.now().minusDays(1));
         Journey correctJourney = getJourneyWithNoEmptyFieldsBy(correctToken, TEST_UUID_1);
         Journey wrongJourney = getJourneyWithNoEmptyFieldsBy(wrongArrivalTimeToken, TEST_UUID_2);
         IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
@@ -239,12 +237,10 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.parse("2020-12-28T12:00:00+02:00[Europe/Berlin]"),
                 new Locale("de")
         );
-        ApiToken secondCorrectToken = new ApiToken.ApiTokenBuilder(firstCorrectToken)
-                .setDateTime(ZonedDateTime.parse("2020-12-28T13:00:00+02:00[Europe/Berlin]"))
-                .build();
-        ApiToken thirdCorrectToken = new ApiToken.ApiTokenBuilder(firstCorrectToken)
-                .setDateTime(ZonedDateTime.parse("2020-12-28T14:00:00+02:00[Europe/Berlin]"))
-                .build();
+        ApiToken secondCorrectToken = new ApiToken(firstCorrectToken);
+        secondCorrectToken.setDateTime(ZonedDateTime.parse("2020-12-28T13:00:00+02:00[Europe/Berlin]"));
+        ApiToken thirdCorrectToken = new ApiToken(firstCorrectToken);
+        thirdCorrectToken.setDateTime(ZonedDateTime.parse("2020-12-28T14:00:00+02:00[Europe/Berlin]"));
         Journey thirdCorrectJourney = getJourneyWithNoEmptyFieldsBy(thirdCorrectToken, TEST_UUID_1);
         Journey secondCorrectJourney = getJourneyWithNoEmptyFieldsBy(secondCorrectToken, TEST_UUID_2);
         Journey firstCorrectJourney = getJourneyWithNoEmptyFieldsBy(firstCorrectToken, TEST_UUID_3);
@@ -270,12 +266,10 @@ class JourneyReadRepositoryServiceTest {
                 ZonedDateTime.parse("2020-12-28T12:00:00+02:00[Europe/Berlin]"),
                 new Locale("de")
         );
-        ApiToken secondCorrectToken = new ApiToken.ApiTokenBuilder(firstCorrectToken)
-                .setDateTime(ZonedDateTime.parse("2020-12-28T11:00:00+02:00[Europe/Berlin]"))
-                .build();
-        ApiToken thirdCorrectToken = new ApiToken.ApiTokenBuilder(firstCorrectToken)
-                .setDateTime(ZonedDateTime.parse("2020-12-28T10:00:00+02:00[Europe/Berlin]"))
-                .build();
+        ApiToken secondCorrectToken = new ApiToken(firstCorrectToken);
+        secondCorrectToken.setDateTime(ZonedDateTime.parse("2020-12-28T11:00:00+02:00[Europe/Berlin]"));
+        ApiToken thirdCorrectToken = new ApiToken(firstCorrectToken);
+        thirdCorrectToken.setDateTime(ZonedDateTime.parse("2020-12-28T10:00:00+02:00[Europe/Berlin]"));
         Journey thirdCorrectJourney = getJourneyWithNoEmptyFieldsBy(thirdCorrectToken, TEST_UUID_1);
         Journey secondCorrectJourney = getJourneyWithNoEmptyFieldsBy(secondCorrectToken, TEST_UUID_2);
         Journey firstCorrectJourney = getJourneyWithNoEmptyFieldsBy(firstCorrectToken, TEST_UUID_3);
