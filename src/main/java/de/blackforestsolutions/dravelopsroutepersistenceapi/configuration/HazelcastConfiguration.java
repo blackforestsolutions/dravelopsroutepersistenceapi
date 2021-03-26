@@ -42,7 +42,6 @@ public class HazelcastConfiguration {
         return apiToken;
     }
 
-    @RefreshScope
     @Bean
     public ClientConfig config() {
         ClientConfig config = new ClientConfig();
@@ -51,7 +50,6 @@ public class HazelcastConfiguration {
         return config;
     }
 
-    @RefreshScope
     @Bean
     public HazelcastInstance hazelcastInstance(ClientConfig config) {
         return HazelcastClient.newHazelcastClient(config);
