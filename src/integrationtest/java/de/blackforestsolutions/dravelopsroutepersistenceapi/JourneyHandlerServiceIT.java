@@ -37,7 +37,7 @@ class JourneyHandlerServiceIT {
 
     @Test
     void test_retrieveJourneysFromApiOrRepositoryService_returns_journeys() {
-        ApiToken testData = new ApiToken.ApiTokenBuilder(routePersistenceApiToken).build();
+        ApiToken testData = new ApiToken(routePersistenceApiToken);
 
         Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
 

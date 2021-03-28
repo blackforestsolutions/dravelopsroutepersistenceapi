@@ -84,11 +84,11 @@ class BackendApiServiceTest {
     @Test
     void test_getManyBy_routePersistenceApiToken_with_language_as_null_and_configured_apiToken_returns_failed_call_status() {
         ArgumentCaptor<Throwable> exceptionArg = ArgumentCaptor.forClass(Throwable.class);
-        ApiToken.ApiTokenBuilder routePersistenceToken = new ApiToken.ApiTokenBuilder(getRoutePersistenceApiToken());
+        ApiToken routePersistenceToken = new ApiToken(getRoutePersistenceApiToken());
         routePersistenceToken.setLanguage(null);
         ApiToken configuredTestToken = getConfiguredJourneyOtpMapperApiToken();
 
-        Flux<Journey> result = classUnderTest.getManyBy(routePersistenceToken.build(), configuredTestToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class);
+        Flux<Journey> result = classUnderTest.getManyBy(routePersistenceToken, configuredTestToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class);
 
         StepVerifier.create(result)
                 .expectNextCount(0L)
@@ -100,11 +100,11 @@ class BackendApiServiceTest {
     @Test
     void test_getManyBy_routePersistenceApiToken_and_configured_apiToken_and_host_as_null_returns_failed_call_status() {
         ArgumentCaptor<Throwable> exceptionArg = ArgumentCaptor.forClass(Throwable.class);
-        ApiToken.ApiTokenBuilder configuredTestToken = new ApiToken.ApiTokenBuilder(getConfiguredJourneyOtpMapperApiToken());
+        ApiToken configuredTestToken = new ApiToken(getConfiguredJourneyOtpMapperApiToken());
         ApiToken routePersistenceToken = getRoutePersistenceApiToken();
         configuredTestToken.setHost(null);
 
-        Flux<Journey> result = classUnderTest.getManyBy(routePersistenceToken, configuredTestToken.build(), requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class);
+        Flux<Journey> result = classUnderTest.getManyBy(routePersistenceToken, configuredTestToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class);
 
         StepVerifier.create(result)
                 .expectNextCount(0L)

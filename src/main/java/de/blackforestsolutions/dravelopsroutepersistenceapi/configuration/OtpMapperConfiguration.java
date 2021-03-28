@@ -3,8 +3,10 @@ package de.blackforestsolutions.dravelopsroutepersistenceapi.configuration;
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 
+@RefreshScope
 @SpringBootConfiguration
 public class OtpMapperConfiguration {
 
@@ -19,14 +21,17 @@ public class OtpMapperConfiguration {
     @Value("${graphql.playground.tabs[0].maxResults}")
     private Integer maxResults;
 
-    @Bean(name = "otpMapperApiToken")
-    public ApiToken apiToken() {
-        return new ApiToken.ApiTokenBuilder()
-                .setProtocol(otpMapperProtocol)
-                .setHost(otpMapperHost)
-                .setPort(otpMapperPort)
-                .setPath(otpMapperJourneyPath)
-                .setMaxResults(maxResults)
-                .build();
+    @RefreshScope
+    @Bean
+    public ApiToken otpMapperApiToken() {
+        ApiToken apiToken = new ApiToken();
+
+        apiToken.setProtocol(otpMapperProtocol);
+        apiToken.setHost(otpMapperHost);
+        apiToken.setPort(otpMapperPort);
+        apiToken.setPath(otpMapperJourneyPath);
+        apiToken.setMaxResults(maxResults);
+
+        return apiToken;
     }
 }
