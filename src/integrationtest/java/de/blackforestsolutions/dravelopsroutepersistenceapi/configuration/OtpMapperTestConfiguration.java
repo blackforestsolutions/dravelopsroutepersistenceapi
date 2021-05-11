@@ -14,7 +14,7 @@ public class OtpMapperTestConfiguration {
 
     @Value("${otpmapper.get.journey.path}")
     private String path;
-    @Value("${graphql.playground.tabs[0].maxResults}")
+    @Value("${graphql.playground.tabs.JOURNEY_QUERY.maxResults}")
     private Integer maxResults;
 
 

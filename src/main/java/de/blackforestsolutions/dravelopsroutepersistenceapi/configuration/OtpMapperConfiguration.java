@@ -18,7 +18,7 @@ public class OtpMapperConfiguration {
     private int otpMapperPort;
     @Value("${otpmapper.get.journey.path}")
     private String otpMapperJourneyPath;
-    @Value("${graphql.playground.tabs[0].maxResults}")
+    @Value("${graphql.playground.tabs.JOURNEY_QUERY.maxResults}")
     private Integer maxResults;
 
     @RefreshScope
