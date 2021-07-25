@@ -2,6 +2,7 @@ package de.blackforestsolutions.dravelopsroutepersistenceapi.service.communicati
 
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
+import de.blackforestsolutions.dravelopsdatamodel.VehicleType;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.exceptionhandling.ExceptionHandlerService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyCreateRepositoryService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.repositoryservice.JourneyReadRepositoryService;
@@ -19,6 +20,8 @@ import java.util.function.Function;
 @Slf4j
 @Service
 public class JourneyHandlerServiceImpl implements JourneyHandlerService {
+
+    private static final int ONE_LEG = 1;
 
     private final RequestTokenHandlerService requestTokenHandlerService;
     private final JourneyCreateRepositoryService journeyCreateRepositoryService;
@@ -57,13 +60,7 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
     private Flux<Journey> retrieveJourneysFromApiServiceWith(ApiToken userRequestToken) {
         return Mono.just(userRequestToken)
                 .flatMapMany(userToken -> backendApiService.getManyBy(userToken, otpMapperApiToken, requestTokenHandlerService::mergeJourneyApiTokensWith, Journey.class))
-                .doOnNext(journey -> {
-                    try {
-                        journeyCreateRepositoryService.writeJourneyToMapWith(journey);
-                    } catch (Exception e) {
-                        exceptionHandlerService.handleExceptions(e);
-                    }
-                })
+                .doOnNext(this::writeJourneyToHazelcast)
                 .take(otpMapperApiToken.getMaxResults())
                 .onErrorResume(exceptionHandlerService::handleExceptions);
     }
@@ -85,6 +82,18 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
         }
         return Mono.just(userRequestToken)
                 .flatMapMany(userToken -> Flux.fromStream(journeyReadRepositoryService.getJourneysSortedByDepartureDateWith(userToken)));
+    }
+
+    private void writeJourneyToHazelcast(Journey journey) {
+        // Footpaths should not be saved in Hazelcast
+        if (journey.getLegs().size() == ONE_LEG && journey.getLegs().getFirst().getVehicleType().equals(VehicleType.WALK)) {
+            return;
+        }
+        try {
+            journeyCreateRepositoryService.writeJourneyToMapWith(journey);
+        } catch (Exception e) {
+            exceptionHandlerService.handleExceptions(e);
+        }
     }
 
 }
