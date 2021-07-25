@@ -3,6 +3,7 @@ package de.blackforestsolutions.dravelopsroutpersistenceapi.service.communicatio
 import com.hazelcast.core.HazelcastException;
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
+import de.blackforestsolutions.dravelopsdatamodel.VehicleType;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.exceptionhandling.ExceptionHandlerService;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.exceptionhandling.ExceptionHandlerServiceImpl;
 import de.blackforestsolutions.dravelopsroutepersistenceapi.service.communicationservice.*;
@@ -23,8 +24,7 @@ import java.util.stream.Stream;
 
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getConfiguredJourneyOtpMapperApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getRoutePersistenceApiToken;
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getFurtwangenToWaldkirchJourney;
-import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsById;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.*;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -193,6 +193,22 @@ class JourneyHandlerServiceTest {
                 .expectNextCount(2L)
                 .verifyComplete();
         verify(exceptionHandlerService, times(1)).handleExceptions(any(HazelcastException.class));
+    }
+
+    @Test
+    void test_retrieveJourneysFromApiOrRepositoryService_with_one_footpath_result_by_backend_service_never_saves_journey_in_hazelcast_when_footpath() throws IOException {
+        ApiToken testData = getRoutePersistenceApiToken();
+        when(journeyReadRepositoryService.getJourneysSortedByDepartureDateWith(any(ApiToken.class)))
+                .thenReturn(Stream.empty());
+        when(backendApiService.getManyBy(any(ApiToken.class), any(ApiToken.class), any(RequestHandlerFunction.class), eq(Journey.class)))
+                .thenReturn(Flux.just(getJourneyWithNoEmptyFieldsByVehicleType(VehicleType.WALK)));
+
+        Flux<Journey> result = classUnderTest.retrieveJourneysFromApiOrRepositoryService(testData);
+
+        StepVerifier.create(result)
+                .expectNextCount(1L)
+                .verifyComplete();
+        verify(journeyCreateRepositoryService, times(0)).writeJourneyToMapWith(any(Journey.class));
     }
 
     @Test
