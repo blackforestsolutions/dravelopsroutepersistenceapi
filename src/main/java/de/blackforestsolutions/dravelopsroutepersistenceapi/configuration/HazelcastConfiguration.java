@@ -84,6 +84,10 @@ public class HazelcastConfiguration {
         clientUserCodeDeploymentConfig.addClass(PriceType.class);
         clientUserCodeDeploymentConfig.addClass(Point.class);
         clientUserCodeDeploymentConfig.addClass(Point.PointBuilder.class);
+        clientUserCodeDeploymentConfig.addClass(WalkStep.class);
+        clientUserCodeDeploymentConfig.addClass(WalkStep.WalkStepBuilder.class);
+        clientUserCodeDeploymentConfig.addClass(WalkingDirection.class);
+        clientUserCodeDeploymentConfig.addClass(CompassDirection.class);
 
         clientUserCodeDeploymentConfig.setEnabled(true);
         return clientUserCodeDeploymentConfig;
