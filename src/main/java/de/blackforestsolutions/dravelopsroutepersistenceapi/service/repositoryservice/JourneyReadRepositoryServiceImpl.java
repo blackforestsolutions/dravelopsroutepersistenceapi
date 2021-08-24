@@ -31,6 +31,12 @@ public class JourneyReadRepositoryServiceImpl implements JourneyReadRepositorySe
     }
 
     @Override
+    public Journey getJourneyById(UUID id) {
+        IMap<UUID, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
+        return hazelcastJourneys.get(id);
+    }
+
+    @Override
     public Stream<Journey> getJourneysSortedByDepartureDateWith(ApiToken apiToken) {
         IMap<UUID, Journey> hazelcastJourneys = hazelcastInstance.getMap(JOURNEY_MAP);
         return hazelcastJourneys.values(Predicates.and(buildBaseJourneyQueryWith(apiToken), new DepartureTimePredicate(apiToken.getDateTime(), hazelcastApiToken.getJourneySearchWindowInMinutes())))

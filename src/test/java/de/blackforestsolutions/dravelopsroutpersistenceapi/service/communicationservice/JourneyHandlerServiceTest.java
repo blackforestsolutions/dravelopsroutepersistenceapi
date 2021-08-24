@@ -17,9 +17,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getConfiguredJourneyOtpMapperApiToken;
@@ -49,6 +51,9 @@ class JourneyHandlerServiceTest {
 
     @BeforeEach
     void init() throws IOException {
+        when(journeyReadRepositoryService.getJourneyById(any(UUID.class)))
+                .thenReturn(getJourneyWithNoEmptyFieldsById(TEST_UUID_1));
+
         when(journeyCreateRepositoryService.writeJourneyToMapWith(any(Journey.class)))
                 .thenReturn(null);
 
@@ -60,6 +65,44 @@ class JourneyHandlerServiceTest {
 
         when(backendApiService.getManyBy(any(ApiToken.class), any(ApiToken.class), any(RequestHandlerFunction.class), eq(Journey.class)))
                 .thenReturn(Flux.just(getFurtwangenToWaldkirchJourney(), getJourneyWithNoEmptyFieldsById(TEST_UUID_5)));
+    }
+
+    @Test
+    void test_getJourneyById_returns_one_journey_when_repository_service_returns_one_result() {
+        ArgumentCaptor<UUID> uuidArg = ArgumentCaptor.forClass(UUID.class);
+
+        Mono<Journey> result = classUnderTest.getJourneyById(TEST_UUID_1);
+
+        StepVerifier.create(result)
+                .assertNext(journey -> assertThat(journey).isEqualToComparingFieldByField(getJourneyWithNoEmptyFieldsById(TEST_UUID_1)))
+                .verifyComplete();
+        verify(journeyReadRepositoryService, times(1)).getJourneyById(uuidArg.capture());
+        assertThat(uuidArg.getValue()).isEqualTo(TEST_UUID_1);
+    }
+
+    @Test
+    void test_getJourneyById_returns_an_empty_stream_when_repository_service_returns_null() {
+        when(journeyReadRepositoryService.getJourneyById(any(UUID.class)))
+                .thenReturn(null);
+
+        Mono<Journey> result = classUnderTest.getJourneyById(TEST_UUID_1);
+
+        StepVerifier.create(result)
+                .expectNextCount(0L)
+                .verifyComplete();
+        verify(exceptionHandlerService, times(1)).handleException(any(Throwable.class));
+    }
+
+    @Test
+    void test_getJourneyById_returns_an_empty_stream_when_uuid_param_is_null() {
+        UUID testUuid = null;
+
+        Mono<Journey> result = classUnderTest.getJourneyById(testUuid);
+
+        StepVerifier.create(result)
+                .expectNextCount(0L)
+                .verifyComplete();
+        verify(exceptionHandlerService, times(1)).handleException(any(Throwable.class));
     }
 
     @Test

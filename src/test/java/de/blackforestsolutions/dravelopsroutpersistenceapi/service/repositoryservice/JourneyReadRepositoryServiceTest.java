@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getApiTokenWithNoEmptyFieldsBy;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.ApiTokenObjectMother.getHazelcastApiToken;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsBy;
+import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.JourneyObjectMother.getJourneyWithNoEmptyFieldsById;
 import static de.blackforestsolutions.dravelopsdatamodel.objectmothers.UUIDObjectMother.*;
 import static de.blackforestsolutions.dravelopsroutepersistenceapi.configuration.HazelcastConfiguration.JOURNEY_MAP;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +44,26 @@ class JourneyReadRepositoryServiceTest {
     @AfterEach
     void tearDown() {
         Hazelcast.shutdownAll();
+    }
+
+    @Test
+    void test_getJourneyById_with_one_journey_in_hazelcast_returns_one_journey_when_uuid_is_equal() {
+        IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
+        hazelcastJourneys.put(TEST_UUID_1, getJourneyWithNoEmptyFieldsById(TEST_UUID_1));
+
+        Journey result = classUnderTest.getJourneyById(TEST_UUID_1);
+
+        assertThat(result).isEqualToComparingFieldByFieldRecursively(getJourneyWithNoEmptyFieldsById(TEST_UUID_1));
+    }
+
+    @Test
+    void test_getJourneyById_with_one_journey_in_hazelcast_returns_null_when_no_journey_is_found() {
+        IMap<UUID, Journey> hazelcastJourneys = hazelcastMock.getMap(JOURNEY_MAP);
+        hazelcastJourneys.put(TEST_UUID_2, getJourneyWithNoEmptyFieldsById(TEST_UUID_2));
+
+        Journey result = classUnderTest.getJourneyById(TEST_UUID_1);
+
+        assertThat(result).isNull();
     }
 
     @Test

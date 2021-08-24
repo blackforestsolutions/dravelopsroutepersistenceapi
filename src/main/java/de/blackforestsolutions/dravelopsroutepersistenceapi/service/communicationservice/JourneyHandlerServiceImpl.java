@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Slf4j
@@ -38,6 +39,17 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
         this.backendApiService = backendApiService;
         this.exceptionHandlerService = exceptionHandlerService;
         this.otpMapperApiToken = otpMapperApiToken;
+    }
+
+    @Override
+    public Mono<Journey> getJourneyById(UUID id) {
+        try {
+            return Mono.just(id)
+                    .map(journeyReadRepositoryService::getJourneyById)
+                    .onErrorResume(exceptionHandlerService::handleException);
+        } catch (Exception e) {
+            return exceptionHandlerService.handleException(e);
+        }
     }
 
     @Override
