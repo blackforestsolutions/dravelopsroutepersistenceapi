@@ -1,5 +1,6 @@
 package de.blackforestsolutions.dravelopsroutepersistenceapi.service.communicationservice;
 
+import com.google.transit.realtime.GtfsRealtime;
 import de.blackforestsolutions.dravelopsdatamodel.ApiToken;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
 import de.blackforestsolutions.dravelopsdatamodel.VehicleType;
@@ -27,21 +28,49 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
     private final JourneyCreateRepositoryService journeyCreateRepositoryService;
     private final JourneyReadRepositoryService journeyReadRepositoryService;
     private final BackendApiService backendApiService;
+    private final GtfsRealtimeApiService gtfsRealtimeApiService;
     private final ExceptionHandlerService exceptionHandlerService;
     private final ApiToken otpMapperApiToken;
 
     @Autowired
-    public JourneyHandlerServiceImpl(RequestTokenHandlerService requestTokenHandlerService, JourneyCreateRepositoryService journeyCreateRepositoryService, JourneyReadRepositoryService journeyReadRepositoryService, BackendApiService backendApiService, ExceptionHandlerService exceptionHandlerService, ApiToken otpMapperApiToken) {
+    public JourneyHandlerServiceImpl(RequestTokenHandlerService requestTokenHandlerService, JourneyCreateRepositoryService journeyCreateRepositoryService, JourneyReadRepositoryService journeyReadRepositoryService, BackendApiService backendApiService, GtfsRealtimeApiService gtfsRealtimeApiService, ExceptionHandlerService exceptionHandlerService, ApiToken otpMapperApiToken) {
         this.requestTokenHandlerService = requestTokenHandlerService;
         this.journeyCreateRepositoryService = journeyCreateRepositoryService;
         this.journeyReadRepositoryService = journeyReadRepositoryService;
         this.backendApiService = backendApiService;
+        this.gtfsRealtimeApiService = gtfsRealtimeApiService;
         this.exceptionHandlerService = exceptionHandlerService;
         this.otpMapperApiToken = otpMapperApiToken;
     }
 
     @Override
     public Flux<Journey> retrieveJourneysFromApiOrRepositoryService(ApiToken userRequestToken) {
+        return Mono.just(userRequestToken)
+                .flatMapMany(this::retrieveJourneysWithUpdate)
+                .onErrorResume(exceptionHandlerService::handleExceptions)
+                .switchIfEmpty(retrieveJourneysFromServices(userRequestToken));
+    }
+
+    private Flux<Journey> retrieveJourneysWithUpdate(ApiToken userRequestToken) {
+        try {
+            return gtfsRealtimeApiService.getGtfsRealtimeFeed()
+                    .flatMapMany(realtimeFeed -> retrieveJourneysFromServices(userRequestToken)
+                            .flatMap(journey -> updateJourneyWithRealtimeFeed(journey, realtimeFeed))
+                    );
+        } catch (Exception e) {
+            return exceptionHandlerService.handleExceptions(e);
+        }
+    }
+
+    private Mono<Journey> updateJourneyWithRealtimeFeed(Journey journey, GtfsRealtime.FeedMessage realtimeFeed) {
+        try {
+            return Mono.just(gtfsRealtimeApiService.updateJourneyWithRealtimeFeed(journey, realtimeFeed));
+        } catch (Exception e) {
+            return exceptionHandlerService.handleException(e);
+        }
+    }
+
+    private Flux<Journey> retrieveJourneysFromServices(ApiToken userRequestToken) {
         return Flux.fromIterable(journeyHandlerFunctions())
                 .flatMap(journeyHandlerFunction -> Mono.just(journeyHandlerFunction)
                         .flatMapMany(backendService -> backendService.apply(userRequestToken))

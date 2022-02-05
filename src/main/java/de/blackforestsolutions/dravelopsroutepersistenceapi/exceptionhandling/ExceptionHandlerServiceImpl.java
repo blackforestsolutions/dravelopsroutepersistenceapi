@@ -61,6 +61,25 @@ public class ExceptionHandlerServiceImpl implements ExceptionHandlerService {
         return Mono.empty();
     }
 
+    @Override
+    public <T> Mono<T> handleException(Throwable exception, T defaultValue) {
+        if (Optional.ofNullable(exception).isEmpty() && Optional.ofNullable(defaultValue).isEmpty()) {
+            logMissingException();
+            logMissingDefaultValue();
+            return Mono.empty();
+        }
+        if (Optional.ofNullable(defaultValue).isEmpty()) {
+            logMissingDefaultValue();
+            return Mono.empty();
+        }
+        if (Optional.ofNullable(exception).isEmpty()) {
+            logMissingException();
+            return Mono.just(defaultValue);
+        }
+        logError(exception);
+        return Mono.just(defaultValue);
+    }
+
     private static <T> void logError(CallStatus<T> callStatus) {
         log.error("Internal Server Error: ", callStatus.getThrowable());
     }
@@ -87,5 +106,9 @@ public class ExceptionHandlerServiceImpl implements ExceptionHandlerService {
 
     private static void logMissingException() {
         log.warn("No Exception available!");
+    }
+
+    private static void logMissingDefaultValue() {
+        log.warn("No default value provided for replacement!");
     }
 }

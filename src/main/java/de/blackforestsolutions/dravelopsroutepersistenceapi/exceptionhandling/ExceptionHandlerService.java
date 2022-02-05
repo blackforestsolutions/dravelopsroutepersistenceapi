@@ -11,4 +11,6 @@ public interface ExceptionHandlerService {
     <T> Mono<T> handleException(Throwable exception);
 
     <T> Mono<T> handleExceptions(CallStatus<T> callStatus);
+
+    <T> Mono<T> handleException(Throwable exception, T defaultValue);
 }

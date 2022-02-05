@@ -43,7 +43,7 @@ class JourneyHandlerServiceTest {
             journeyCreateRepositoryService,
             journeyReadRepositoryService,
             backendApiService,
-            exceptionHandlerService,
+            gtfsRealtimeApiService, exceptionHandlerService,
             configuredOtpMapperApiToken
     );
 
