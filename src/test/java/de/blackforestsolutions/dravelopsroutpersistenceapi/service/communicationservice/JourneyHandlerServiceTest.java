@@ -35,6 +35,7 @@ class JourneyHandlerServiceTest {
     private final JourneyCreateRepositoryService journeyCreateRepositoryService = mock(JourneyCreateRepositoryServiceImpl.class);
     private final JourneyReadRepositoryService journeyReadRepositoryService = mock(JourneyReadRepositoryServiceImpl.class);
     private final BackendApiService backendApiService = mock(BackendApiServiceImpl.class);
+    private final GtfsRealtimeApiService gtfsRealtimeApiService = mock(GtfsRealtimeApiServiceImpl.class);
     private final ExceptionHandlerService exceptionHandlerService = spy(ExceptionHandlerServiceImpl.class);
     private final ApiToken configuredOtpMapperApiToken = getConfiguredJourneyOtpMapperApiToken();
 
@@ -43,7 +44,8 @@ class JourneyHandlerServiceTest {
             journeyCreateRepositoryService,
             journeyReadRepositoryService,
             backendApiService,
-            gtfsRealtimeApiService, exceptionHandlerService,
+            gtfsRealtimeApiService,
+            exceptionHandlerService,
             configuredOtpMapperApiToken
     );
 

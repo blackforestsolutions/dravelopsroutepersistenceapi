@@ -48,7 +48,6 @@ class JourneyHandlerServiceIT {
                     assertThat(journey.getLanguage().getLanguage().length()).isEqualTo(2);
                     assertThat(journey.getLegs().size()).isGreaterThan(0);
                     assertThat(journey.getLegs())
-                            .allMatch(leg -> leg.getDelayInMinutes().toMillis() >= 0)
                             .allMatch(leg -> leg.getDistanceInKilometers().getValue() > 0)
                             .allMatch(leg -> leg.getVehicleType() != null)
                             .allMatch(leg -> leg.getPolyline().length() > 0)

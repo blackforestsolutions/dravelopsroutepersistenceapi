@@ -4,8 +4,10 @@ import com.google.transit.realtime.GtfsRealtime;
 import de.blackforestsolutions.dravelopsdatamodel.Journey;
 import reactor.core.publisher.Mono;
 
-public interface GtfsRealtimeApiService {
-    Mono<GtfsRealtime.FeedMessage> getGtfsRealtimeFeed();
+import java.util.Map;
 
-    Journey updateJourneyWithRealtimeFeed(Journey journey, GtfsRealtime.FeedMessage realtimeFeed);
+public interface GtfsRealtimeApiService {
+    Mono<Map<String, GtfsRealtime.FeedMessage>> getGtfsRealtimeFeeds();
+
+    Mono<Journey> updateJourneyWithRealtimeFeeds(Journey journey, Map<String, GtfsRealtime.FeedMessage> realtimeFeeds);
 }

@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @Slf4j
@@ -53,18 +54,18 @@ public class JourneyHandlerServiceImpl implements JourneyHandlerService {
 
     private Flux<Journey> retrieveJourneysWithUpdate(ApiToken userRequestToken) {
         try {
-            return gtfsRealtimeApiService.getGtfsRealtimeFeed()
-                    .flatMapMany(realtimeFeed -> retrieveJourneysFromServices(userRequestToken)
-                            .flatMap(journey -> updateJourneyWithRealtimeFeed(journey, realtimeFeed))
+            return gtfsRealtimeApiService.getGtfsRealtimeFeeds()
+                    .flatMapMany(realtimeFeeds -> retrieveJourneysFromServices(userRequestToken)
+                            .flatMap(journey -> updateJourneyWithRealtimeFeeds(journey, realtimeFeeds))
                     );
         } catch (Exception e) {
             return exceptionHandlerService.handleExceptions(e);
         }
     }
 
-    private Mono<Journey> updateJourneyWithRealtimeFeed(Journey journey, GtfsRealtime.FeedMessage realtimeFeed) {
+    private Mono<Journey> updateJourneyWithRealtimeFeeds(Journey journey, Map<String, GtfsRealtime.FeedMessage> realtimeFeeds) {
         try {
-            return Mono.just(gtfsRealtimeApiService.updateJourneyWithRealtimeFeed(journey, realtimeFeed));
+            return gtfsRealtimeApiService.updateJourneyWithRealtimeFeeds(journey, realtimeFeeds);
         } catch (Exception e) {
             return exceptionHandlerService.handleException(e);
         }
