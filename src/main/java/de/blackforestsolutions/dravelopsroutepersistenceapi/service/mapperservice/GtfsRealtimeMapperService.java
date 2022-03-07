@@ -5,8 +5,4 @@ import de.blackforestsolutions.dravelopsdatamodel.Leg;
 
 public interface GtfsRealtimeMapperService {
     Leg updateLegWithTripUpdate(Leg leg, GtfsRealtime.TripUpdate tripUpdate);
-
-    Leg updateLegWithAlert(Leg leg, GtfsRealtime.Alert tripAlert);
-
-    Leg updateLegWithVehiclePosition(Leg leg, GtfsRealtime.VehiclePosition vehiclePosition);
 }

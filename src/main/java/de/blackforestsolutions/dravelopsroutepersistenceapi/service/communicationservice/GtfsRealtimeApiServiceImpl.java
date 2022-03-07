@@ -120,16 +120,21 @@ public class GtfsRealtimeApiServiceImpl implements GtfsRealtimeApiService {
 
     private Leg updateLegIfUpdateEntityExist(Leg leg, GtfsRealtime.FeedEntity updateEntity) {
         if (updateEntity.hasTripUpdate() && containsTripUpdateForLeg(updateEntity.getTripUpdate(), leg)) {
-            return gtfsRealtimeMapperService.updateLegWithTripUpdate(leg, updateEntity.getTripUpdate());
+            log.info("Updating Leg With TripUpdate...");
+            Leg updateLeg = gtfsRealtimeMapperService.updateLegWithTripUpdate(leg, updateEntity.getTripUpdate());
+            log.info("Successfully updated Leg with TripUpdate!");
+            return updateLeg;
         }
-        if (updateEntity.hasAlert()) {
-            gtfsRealtimeMapperService.updateLegWithAlert(leg, updateEntity.getAlert());
-            return leg;
-        }
-        if (updateEntity.hasVehicle()) {
-            gtfsRealtimeMapperService.updateLegWithVehiclePosition(leg, updateEntity.getVehicle());
-            return leg;
-        }
+        /*
+            if (updateEntity.hasAlert()) {
+                gtfsRealtimeMapperService.updateLegWithAlert(leg, updateEntity.getAlert());
+                return leg;
+            }
+            if (updateEntity.hasVehicle()) {
+                gtfsRealtimeMapperService.updateLegWithVehiclePosition(leg, updateEntity.getVehicle());
+                return leg;
+            }
+        */
         return leg;
     }
 

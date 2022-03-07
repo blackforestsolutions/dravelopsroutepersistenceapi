@@ -1,5 +1,8 @@
 package de.blackforestsolutions.dravelopsroutepersistenceapi.service.mapperservice;
 
+import com.google.transit.realtime.GtfsRealtime.TripDescriptor.ScheduleRelationship;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeEvent;
+import com.google.transit.realtime.GtfsRealtime.TripUpdate.StopTimeUpdate;
 import de.blackforestsolutions.dravelopsdatamodel.Leg;
 import de.blackforestsolutions.dravelopsdatamodel.TravelPoint;
 import de.blackforestsolutions.dravelopsdatamodel.TravelProvider;
@@ -34,7 +37,7 @@ public class GtfsRealtimeMapperServiceImpl implements GtfsRealtimeMapperService 
 
     @Override
     public Leg updateLegWithTripUpdate(Leg leg, TripUpdate tripUpdate) {
-        if (tripUpdate.getTrip().getScheduleRelationship().equals(TripDescriptor.ScheduleRelationship.CANCELED)) {
+        if (tripUpdate.getTrip().getScheduleRelationship().equals(ScheduleRelationship.CANCELED)) {
             throw new LegCanceledException();
         }
         if (tripUpdate.getStopTimeUpdateCount() == ZERO_STOP_TIME_UPDATES) {
@@ -44,21 +47,11 @@ public class GtfsRealtimeMapperServiceImpl implements GtfsRealtimeMapperService 
 
         LinkedList<TravelPoint> allTravelPoints = updateAllTravelPointsWith(leg, tripUpdate);
         return new Leg.LegBuilder(leg)
-                .setVehicleName(Optional.ofNullable(tripUpdate.getVehicle()).map(VehicleDescriptor::getLabel).orElse(leg.getVehicleName()))
+                .setVehicleName(extractVehicleNameFrom(tripUpdate).orElse(leg.getVehicleName()))
                 .setDeparture(allTravelPoints.getFirst())
                 .setArrival(allTravelPoints.getLast())
                 .setIntermediateStops(extractNewIntermediateStopsFrom(allTravelPoints))
                 .build();
-    }
-
-    @Override
-    public Leg updateLegWithAlert(Leg leg, Alert tripAlert) {
-        return null;
-    }
-
-    @Override
-    public Leg updateLegWithVehiclePosition(Leg leg, VehiclePosition vehiclePosition) {
-        return null;
     }
 
     private LinkedList<TravelPoint> updateAllTravelPointsWith(Leg leg, TripUpdate tripUpdate) {
@@ -76,7 +69,7 @@ public class GtfsRealtimeMapperServiceImpl implements GtfsRealtimeMapperService 
                      * best solution.
                      */
                     if (stopTimeUpdateCounter.get() < tripUpdate.getStopTimeUpdateCount()) {
-                        TripUpdate.StopTimeUpdate stopUpdate = tripUpdate.getStopTimeUpdate(stopTimeUpdateCounter.get());
+                        StopTimeUpdate stopUpdate = tripUpdate.getStopTimeUpdate(stopTimeUpdateCounter.get());
                         if (hasEqualStopSequenceOrStopId(stopUpdate, travelPoint, leg.getTravelProvider())) {
                             departureDelayInSeconds.set(extractDepartureDelayInSecondsFrom(travelPoint, stopUpdate));
                             arrivalDelayInSeconds.set(extractArrivalDelayInSecondsFrom(travelPoint, stopUpdate));
@@ -86,6 +79,19 @@ public class GtfsRealtimeMapperServiceImpl implements GtfsRealtimeMapperService 
                     return buildNewTravelPointWith(travelPoint, departureDelayInSeconds.get(), arrivalDelayInSeconds.get());
                 })
                 .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    private int initStopTimeUpdateCounterWith(Leg leg, TripUpdate tripUpdate) {
+        int stopTimeUpdateCounter = 0;
+        for (StopTimeUpdate stopTimeUpdate : tripUpdate.getStopTimeUpdateList()) {
+            for (TravelPoint travelPoint : extractAllTravelPointsFrom(leg)) {
+                if (hasEqualStopSequenceOrStopId(stopTimeUpdate, travelPoint, leg.getTravelProvider())) {
+                    return stopTimeUpdateCounter;
+                }
+            }
+            stopTimeUpdateCounter++;
+        }
+        return stopTimeUpdateCounter;
     }
 
     private LinkedList<TravelPoint> extractAllTravelPointsFrom(Leg leg) {
@@ -108,27 +114,34 @@ public class GtfsRealtimeMapperServiceImpl implements GtfsRealtimeMapperService 
                 .build();
     }
 
+    private Optional<String> extractVehicleNameFrom(TripUpdate tripUpdate) {
+        if (tripUpdate.hasVehicle() && tripUpdate.getVehicle().hasLabel()) {
+            return Optional.of(tripUpdate.getVehicle().getLabel());
+        }
+        return Optional.empty();
+    }
+
     private LinkedList<TravelPoint> extractNewIntermediateStopsFrom(LinkedList<TravelPoint> allStops) {
         allStops.removeFirst();
         allStops.removeLast();
         return allStops;
     }
 
-    private boolean hasEqualStopSequenceOrStopId(TripUpdate.StopTimeUpdate stopUpdate, TravelPoint travelPoint, TravelProvider travelProvider) {
+    private boolean hasEqualStopSequenceOrStopId(StopTimeUpdate stopUpdate, TravelPoint travelPoint, TravelProvider travelProvider) {
         if (stopUpdate.hasStopSequence() && stopUpdate.hasStopId()) {
             return hasEqualStopSequence(stopUpdate, travelPoint);
         }
         return hasEqualStopSequence(stopUpdate, travelPoint) || hasEqualStopId(stopUpdate, travelPoint, travelProvider);
     }
 
-    private boolean hasEqualStopSequence(TripUpdate.StopTimeUpdate stopUpdate, TravelPoint travelPoint) {
+    private boolean hasEqualStopSequence(StopTimeUpdate stopUpdate, TravelPoint travelPoint) {
         if (!stopUpdate.hasStopSequence()) {
             return false;
         }
         return stopUpdate.getStopSequence() == travelPoint.getStopSequence();
     }
 
-    private boolean hasEqualStopId(TripUpdate.StopTimeUpdate stopUpdate, TravelPoint travelPoint, TravelProvider travelProvider) {
+    private boolean hasEqualStopId(StopTimeUpdate stopUpdate, TravelPoint travelPoint, TravelProvider travelProvider) {
         if (!stopUpdate.hasStopId()) {
             return false;
         }
@@ -142,9 +155,9 @@ public class GtfsRealtimeMapperServiceImpl implements GtfsRealtimeMapperService 
                 .concat(stopId);
     }
 
-    private Duration extractDepartureDelayInSecondsFrom(TravelPoint travelPoint, TripUpdate.StopTimeUpdate stopUpdate) {
+    private Duration extractDepartureDelayInSecondsFrom(TravelPoint travelPoint, StopTimeUpdate stopUpdate) {
         Optional<ZonedDateTime> travelPointDepartureTime = Optional.ofNullable(travelPoint.getDepartureTime());
-        Optional<TripUpdate.StopTimeEvent> tripUpdateDepartureTime = Optional.ofNullable(stopUpdate.getDeparture());
+        Optional<StopTimeEvent> tripUpdateDepartureTime = Optional.ofNullable(stopUpdate.getDeparture());
 
         if (travelPointDepartureTime.isPresent() && tripUpdateDepartureTime.isPresent()) {
             return extractDelayInSecondsFrom(
@@ -155,9 +168,9 @@ public class GtfsRealtimeMapperServiceImpl implements GtfsRealtimeMapperService 
         return Duration.ZERO;
     }
 
-    private Duration extractArrivalDelayInSecondsFrom(TravelPoint travelPoint, TripUpdate.StopTimeUpdate stopUpdate) {
+    private Duration extractArrivalDelayInSecondsFrom(TravelPoint travelPoint, StopTimeUpdate stopUpdate) {
         Optional<ZonedDateTime> travelPointArrivalTime = Optional.ofNullable(travelPoint.getArrivalTime());
-        Optional<TripUpdate.StopTimeEvent> tripUpdateArrivalTime = Optional.ofNullable(stopUpdate.getArrival());
+        Optional<StopTimeEvent> tripUpdateArrivalTime = Optional.ofNullable(stopUpdate.getArrival());
 
         if (travelPointArrivalTime.isPresent() && tripUpdateArrivalTime.isPresent()) {
             return extractDelayInSecondsFrom(
@@ -168,14 +181,13 @@ public class GtfsRealtimeMapperServiceImpl implements GtfsRealtimeMapperService 
         return Duration.ZERO;
     }
 
-    private Duration extractDelayInSecondsFrom(ZonedDateTime travelPointTime, TripUpdate.StopTimeEvent stopTimeEvent) {
+    private Duration extractDelayInSecondsFrom(ZonedDateTime travelPointTime, StopTimeEvent stopTimeEvent) {
         if (stopTimeEvent.hasTime()) {
             return extractDelayInSecondsFrom(travelPointTime, stopTimeEvent.getTime());
         }
         if (stopTimeEvent.hasDelay()) {
             return Duration.ofSeconds(stopTimeEvent.getDelay());
         }
-        log.warn("StopTimeEvent has neither a time attribute nor a delay attribute!");
         return Duration.ZERO;
     }
 
